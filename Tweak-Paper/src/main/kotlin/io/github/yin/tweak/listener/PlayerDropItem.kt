@@ -1,8 +1,10 @@
 package io.github.yin.tweak.listener
 
+import io.github.yin.tweak.Tweak
 import io.github.yin.tweak.common.Enumeration
 import io.github.yin.tweak.inventory.holder.ViewHolder
 import io.github.yin.tweak.service.SimpleShulkerBox
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -28,6 +30,10 @@ object PlayerDropItem : Listener {
             if (SimpleShulkerBox.saveInventory(itemStack, holder)) {
                 player.playSound(player.location, SimpleShulkerBox.soundClose, 1.0f, 1.0f)
                 player.closeInventory()
+
+                Bukkit.getScheduler().runTask(Tweak.instance, Runnable {
+                    player.updateInventory()
+                })
             }
         }
     }

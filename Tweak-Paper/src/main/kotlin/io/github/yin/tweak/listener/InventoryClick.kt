@@ -1,9 +1,11 @@
 package io.github.yin.tweak.listener
 
+import io.github.yin.tweak.Tweak
 import io.github.yin.tweak.common.Enumeration
 import io.github.yin.tweak.inventory.holder.ViewHolder
 import io.github.yin.tweak.service.SimpleShulkerBox
 import net.kyori.adventure.text.Component
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -79,6 +81,10 @@ object InventoryClick : Listener {
             }
             player.openInventory(viewHolder.inventory)
             player.playSound(player.location, SimpleShulkerBox.soundOpen, 1.0f, 1.0f)
+
+            Bukkit.getScheduler().runTask(Tweak.instance, Runnable {
+                player.updateInventory()
+            })
         }
     }
 
