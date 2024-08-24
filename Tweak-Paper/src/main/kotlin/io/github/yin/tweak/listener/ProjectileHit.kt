@@ -14,7 +14,7 @@ import kotlin.random.Random
 
 object ProjectileHit : Listener {
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
     fun onProjectileHit(event: ProjectileHitEvent) {
         val projectile = event.entity
         val hit = event.hitEntity ?: return

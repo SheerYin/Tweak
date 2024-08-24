@@ -26,6 +26,7 @@ class Tweak : JavaPlugin() {
 
         server.consoleSender.sendMessage(MessageReplace.deserialize(pluginPrefix + "插件开始加载 " + pluginVersion))
 
+        server.pluginManager.registerEvents(EntityResurrect, this)
         server.pluginManager.registerEvents(InventoryClick, this)
         server.pluginManager.registerEvents(InventoryClose, this)
         server.pluginManager.registerEvents(PlayerDeath, this)
