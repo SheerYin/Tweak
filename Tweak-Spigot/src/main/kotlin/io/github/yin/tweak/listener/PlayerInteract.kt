@@ -1,8 +1,10 @@
 package io.github.yin.tweak.listener
 
+import io.github.yin.tweak.Tweak
 import io.github.yin.tweak.common.Enumeration
+import io.github.yin.tweak.inventory.holder.ShulkerViewHolder
 import io.github.yin.tweak.service.SimpleShulkerBox
-import org.bukkit.Material
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -20,40 +22,64 @@ object PlayerInteract : Listener {
             val equipmentSlot = event.hand
             if (equipmentSlot == EquipmentSlot.HAND) {
 
-                val player = event.player
                 val itemStack = event.item ?: return
+                val player = event.player
 
-                handleInteract(itemStack, player)
+                handleInteract(player, itemStack)
             }
         }
     }
 
-    private fun handleInteract(itemStack: ItemStack, player: Player) {
+    private fun handleInteract(player: Player, itemStack: ItemStack) {
+        val material = itemStack.type
+        val cooldown = player.getCooldown(material)
+        if (cooldown > 0) {
+            return
+        }
         val title = Enumeration.shulkerBoxColors[itemStack.type]
-        if (title == null) {
-            if (itemStack.type == Material.ENDER_CHEST) {
-                enderChest(player)
+        if (title != null) {
+            if (itemStack.amount == 1) {
+                shulkerOpen(player, itemStack, title)
             }
-        } else {
-            shulker(itemStack, player, title)
         }
     }
 
-    private fun shulker(itemStack: ItemStack, player: Player, title: String) {
-        if (itemStack.amount == 1) {
-            val itemMeta = itemStack.itemMeta!!
-            val viewHolder = if (itemMeta.hasDisplayName()) {
-                SimpleShulkerBox.getInventory(itemStack, itemMeta.displayName)
+    private fun shulkerOpen(player: Player, itemStack: ItemStack, title: String) {
+        val inventoryView = player.openInventory
+        val holder = inventoryView.topInventory.holder
+        if (holder is ShulkerViewHolder) {
+            if (SimpleShulkerBox.check(itemStack, holder)) {
+                return
             } else {
-                SimpleShulkerBox.getInventory(itemStack, title)
+                val cursor = inventoryView.cursor ?: return
+                var saveSuccess = false
+                if (cursor.type in Enumeration.shulkerBoxes) {
+                    // 如果保存成功
+                    saveSuccess = SimpleShulkerBox.saveInventory(cursor, holder)
+                }
+                // 保存成功后不再尝试遍历玩家 inventory
+                if (!saveSuccess) {
+                    for (stack in player.inventory.contents) {
+                        if (stack != null && stack.type in Enumeration.shulkerBoxes) {
+                            if (SimpleShulkerBox.saveInventory(stack, holder)) {
+                                break // 保存成功提前结束循环
+                            }
+                        }
+                    }
+                }
             }
-            player.openInventory(viewHolder.inventory)
-            player.playSound(player.location, SimpleShulkerBox.soundOpen, 1.0f, 1.0f)
         }
-    }
-
-    private fun enderChest(player: Player) {
-        player.openInventory(player.enderChest)
+        val itemMeta = itemStack.itemMeta ?: return
+        val shulkerViewHolder = if (itemMeta.hasDisplayName()) {
+            SimpleShulkerBox.getInventory(itemStack, itemMeta.displayName)
+        } else {
+            SimpleShulkerBox.getInventory(itemStack, title)
+        }
+        Bukkit.getScheduler().runTask(Tweak.instance, Runnable {
+            player.openInventory(shulkerViewHolder.inventory)
+            player.playSound(player.location, SimpleShulkerBox.soundOpen, 1.0f, 1.0f)
+            player.setCooldown(itemStack.type, 5)
+        })
     }
 
 

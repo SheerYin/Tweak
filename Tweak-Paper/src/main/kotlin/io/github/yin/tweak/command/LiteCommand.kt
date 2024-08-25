@@ -42,7 +42,13 @@ object LiteCommand {
             ).build()
     }
 
-    private fun suggest(context: CommandContext<CommandSourceStack>, sender: CommandSender, remaining: String, arguments: List<String>, suggestionsBuilder: SuggestionsBuilder): SuggestionsBuilder {
+    private fun suggest(
+        context: CommandContext<CommandSourceStack>,
+        sender: CommandSender,
+        remaining: String,
+        arguments: List<String>,
+        suggestionsBuilder: SuggestionsBuilder
+    ): SuggestionsBuilder {
         when (arguments.size) {
             1 -> {
                 for (element in listOf("test", "show")) {

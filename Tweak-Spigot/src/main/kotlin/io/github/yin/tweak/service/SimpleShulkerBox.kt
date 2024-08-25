@@ -1,7 +1,7 @@
 package io.github.yin.tweak.service
 
 import io.github.yin.tweak.Tweak
-import io.github.yin.tweak.inventory.holder.ViewHolder
+import io.github.yin.tweak.inventory.holder.ShulkerViewHolder
 import org.bukkit.NamespacedKey
 import org.bukkit.Sound
 import org.bukkit.block.ShulkerBox
@@ -13,7 +13,7 @@ import java.util.*
 object SimpleShulkerBox {
     private val namespacedKey = NamespacedKey(Tweak.instance, "shulker")
 
-    fun getInventory(itemStack: ItemStack, title: String): ViewHolder {
+    fun getInventory(itemStack: ItemStack, title: String): ShulkerViewHolder {
         val itemMeta = itemStack.itemMeta!!
         val uuid = UUID.randomUUID()
         itemMeta.persistentDataContainer.set(namespacedKey, PersistentDataType.STRING, uuid.toString())
@@ -22,10 +22,10 @@ object SimpleShulkerBox {
         val shulkerBox = ((itemMeta as BlockStateMeta).blockState) as ShulkerBox
         val inventory = shulkerBox.inventory
 
-        return ViewHolder(uuid, inventory, title)
+        return ShulkerViewHolder(uuid, inventory, title)
     }
 
-    fun saveInventory(itemStack: ItemStack, holder: ViewHolder): Boolean {
+    fun saveInventory(itemStack: ItemStack, holder: ShulkerViewHolder): Boolean {
         val itemMeta = itemStack.itemMeta!!
 
         val target = itemMeta.persistentDataContainer.get(namespacedKey, PersistentDataType.STRING) ?: return false
@@ -39,10 +39,16 @@ object SimpleShulkerBox {
 
             itemStack.itemMeta = blockStateMeta
 
-            holder.save = false
+            holder.save = true
             return true
         }
         return false
+    }
+
+    fun check(itemStack: ItemStack, holder: ShulkerViewHolder): Boolean {
+        val itemMeta = itemStack.itemMeta!!
+        val target = itemMeta.persistentDataContainer.get(namespacedKey, PersistentDataType.STRING) ?: return false
+        return target == holder.uuid.toString()
     }
 
     val soundOpen = Sound.BLOCK_SHULKER_BOX_OPEN

@@ -1,7 +1,7 @@
 package io.github.yin.tweak.service
 
 import io.github.yin.tweak.Tweak
-import io.github.yin.tweak.inventory.holder.ViewHolder
+import io.github.yin.tweak.inventory.holder.ShulkerViewHolder
 import net.kyori.adventure.text.Component
 import org.bukkit.NamespacedKey
 import org.bukkit.Sound
@@ -14,8 +14,8 @@ import java.util.*
 object SimpleShulkerBox {
     private val namespacedKey = NamespacedKey(Tweak.instance, "shulker")
 
-    fun getInventory(itemStack: ItemStack, title: Component): ViewHolder {
-        val itemMeta = itemStack.itemMeta!!
+    fun getInventory(itemStack: ItemStack, title: Component): ShulkerViewHolder {
+        val itemMeta = itemStack.itemMeta
         val uuid = UUID.randomUUID()
         itemMeta.persistentDataContainer.set(namespacedKey, PersistentDataType.STRING, uuid.toString())
         itemStack.itemMeta = itemMeta
@@ -23,11 +23,11 @@ object SimpleShulkerBox {
         val shulkerBox = ((itemMeta as BlockStateMeta).blockState) as ShulkerBox
         val inventory = shulkerBox.inventory
 
-        return ViewHolder(uuid, inventory, title)
+        return ShulkerViewHolder(uuid, inventory, title)
     }
 
-    fun saveInventory(itemStack: ItemStack, holder: ViewHolder): Boolean {
-        val itemMeta = itemStack.itemMeta!!
+    fun saveInventory(itemStack: ItemStack, holder: ShulkerViewHolder): Boolean {
+        val itemMeta = itemStack.itemMeta
 
         val target = itemMeta.persistentDataContainer.get(namespacedKey, PersistentDataType.STRING) ?: return false
         if (holder.uuid.toString() == target) {
@@ -40,10 +40,16 @@ object SimpleShulkerBox {
 
             itemStack.itemMeta = blockStateMeta
 
-            holder.save = false
+            holder.save = true
             return true
         }
         return false
+    }
+
+    fun check(itemStack: ItemStack, holder: ShulkerViewHolder): Boolean {
+        val itemMeta = itemStack.itemMeta
+        val target = itemMeta.persistentDataContainer.get(namespacedKey, PersistentDataType.STRING) ?: return false
+        return target == holder.uuid.toString()
     }
 
     val soundOpen = Sound.BLOCK_SHULKER_BOX_OPEN
