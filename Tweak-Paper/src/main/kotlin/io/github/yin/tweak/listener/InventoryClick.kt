@@ -34,8 +34,7 @@ object InventoryClick : Listener {
                 val rawSlot = event.rawSlot
                 val inventoryView = event.view
                 val top = inventoryView.topInventory
-                val topSize = top.size
-                if (rawSlot < topSize) {
+                if (rawSlot < top.size) {
                     return
                 }
 
@@ -59,7 +58,7 @@ object InventoryClick : Listener {
                         return
                     }
                     if (current.amount == 1) {
-                        val holder = top.holder ?: return
+                        val holder = top.holder
                         shulkerOpen(inventoryView, holder, current, title, player)
                     }
                 }
@@ -93,7 +92,7 @@ object InventoryClick : Listener {
         }
     }
 
-    fun shulkerOpen(inventoryView: InventoryView, holder: InventoryHolder, current: ItemStack, title: Component, player: Player) {
+    fun shulkerOpen(inventoryView: InventoryView, holder: InventoryHolder?, current: ItemStack, title: Component, player: Player) {
         if (holder is ShulkerViewHolder) {
             if (SimpleShulkerBox.check(current, holder)) {
                 return
