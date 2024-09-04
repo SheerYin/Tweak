@@ -27,7 +27,7 @@ paperPluginYaml {
     authors.add("尹")
     prefix = "微调"
     loader = "${project.group}.Loader"
-    bootstrapper = "${project.group}.Bootstrap"
+//    bootstrapper = "${project.group}.Bootstrap"
 }
 
 tasks.jar {

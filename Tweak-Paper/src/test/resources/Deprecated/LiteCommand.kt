@@ -1,4 +1,4 @@
-package io.github.yin.tweak.command
+package Deprecated
 
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext

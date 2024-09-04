@@ -25,6 +25,10 @@ object ProjectileHit : Listener {
     private fun capture(projectile: Projectile, hit: Entity) {
         if (projectile is Snowball && Random.nextDouble() < 0.1) {
             val livingEntity = hit as? LivingEntity ?: return
+            // 如果有自定义名称始终显示，那么表示这是自定义怪物
+            if (livingEntity.customName() != null || livingEntity.isCustomNameVisible) {
+                return
+            }
             Enumeration.entityEggs[livingEntity.type]?.let { itemStack ->
                 val location = livingEntity.location
                 val world = location.world!!

@@ -10,7 +10,7 @@ public class Bootstrap implements PluginBootstrap {
 //        LifecycleEventManager<BootstrapContext> manager = bootstrapContext.getLifecycleManager();
 //
 //        manager.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
-//            event.registrar().register(LiteCommand.INSTANCE.node(), LiteCommand.INSTANCE.getAlias());
+//            event.registrar().register(Literal.INSTANCE.node(), Literal.INSTANCE.getAlias());
 //        });
     }
 
