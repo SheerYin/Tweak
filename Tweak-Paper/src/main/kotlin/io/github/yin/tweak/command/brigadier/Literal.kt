@@ -1,6 +1,7 @@
 package io.github.yin.tweak.command.brigadier
 
 import com.mojang.brigadier.CommandDispatcher
+import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import io.github.yin.tweak.Tweak
 import io.github.yin.tweak.command.brigadier.dynamic.ExperienceBook
 import net.minecraft.commands.CommandSourceStack
@@ -16,13 +17,15 @@ object Literal {
 
         val builder = Commands.literal(name)
             .requires { stack -> val sender = stack.sender; return@requires sender !is Player || sender.hasPermission(permission) }
+
             .then(ExperienceBook.dynamic(permission))
 
 
 
+        register(dispatcher, name, aliases, builder)
+    }
 
-
-
+    private fun register(dispatcher: CommandDispatcher<CommandSourceStack>, name: String, aliases: List<String>, builder: LiteralArgumentBuilder<CommandSourceStack>) {
         // 注册命令
         val node = dispatcher.register(builder)
 

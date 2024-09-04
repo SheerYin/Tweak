@@ -21,9 +21,9 @@ class Tweak : JavaPlugin() {
         lowercaseName = pluginName.lowercase()
         pluginVersion = description.version
         pluginAuthors = description.authors
-        pluginPrefix = "§f[§a${description.prefix}§f] "
+        pluginPrefix = "§f[§a${description.prefix}§f]"
 
-        server.consoleSender.sendMessage(pluginPrefix + "插件开始加载 " + pluginVersion)
+        server.consoleSender.sendMessage("$pluginPrefix 插件开始加载 $pluginVersion")
 
         server.pluginManager.registerEvents(InventoryClick, this)
         server.pluginManager.registerEvents(InventoryClose, this)
@@ -33,6 +33,6 @@ class Tweak : JavaPlugin() {
     }
 
     override fun onDisable() {
-        server.consoleSender.sendMessage(pluginPrefix + "插件开始卸载 " + pluginVersion)
+        server.consoleSender.sendMessage("$pluginPrefix 插件开始卸载 $pluginVersion")
     }
 }

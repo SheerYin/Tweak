@@ -12,7 +12,7 @@ val lowercaseName = rootName.lowercase(Locale.getDefault())
 group = "${rootProject.group}.${lowercaseName}"
 version = SimpleDateFormat("yyyy.MM.dd").format(Date()) + "-SNAPSHOT";
 
-val minecraftVersion = "1.21"
+val minecraftVersion = "1.21.1"
 dependencies {
     paperweight.paperDevBundle("$minecraftVersion-R0.1-SNAPSHOT")
 
@@ -27,7 +27,6 @@ paperPluginYaml {
     authors.add("尹")
     prefix = "微调"
     loader = "${project.group}.Loader"
-//    bootstrapper = "${project.group}.Bootstrap"
 }
 
 tasks.jar {

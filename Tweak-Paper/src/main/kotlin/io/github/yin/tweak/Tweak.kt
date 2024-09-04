@@ -24,9 +24,9 @@ class Tweak : JavaPlugin() {
         lowercaseName = pluginName.lowercase()
         pluginVersion = pluginMeta.version
         pluginAuthors = pluginMeta.authors
-        pluginPrefix = "<white>[<green>${pluginMeta.loggerPrefix}<white>] "
+        pluginPrefix = "<white>[<green>${pluginMeta.loggerPrefix}<white>]"
 
-        server.consoleSender.sendMessage(MessageReplace.deserialize(pluginPrefix + "插件开始加载 " + pluginVersion))
+        server.consoleSender.sendMessage(MessageReplace.deserialize("$pluginPrefix 插件开始加载 $pluginVersion"))
 
         server.pluginManager.registerEvents(EntityResurrect, this)
         server.pluginManager.registerEvents(InventoryClick, this)
@@ -40,11 +40,10 @@ class Tweak : JavaPlugin() {
     }
 
     override fun onDisable() {
-        server.consoleSender.sendMessage(MessageReplace.deserialize(pluginPrefix + "插件开始卸载 " + pluginVersion))
+        server.consoleSender.sendMessage(MessageReplace.deserialize("$pluginPrefix 插件开始卸载 $pluginVersion"))
 
         unregisterCommand()
     }
-
 
     private fun registerCommand() {
         val craftServer = server as CraftServer
