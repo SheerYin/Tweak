@@ -3,7 +3,7 @@ package io.github.yin.tweak
 import io.github.yin.tweak.command.brigadier.Literal
 import io.github.yin.tweak.listener.*
 import io.github.yin.tweak.support.MessageReplace
-import org.bukkit.craftbukkit.CraftServer
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
 import org.bukkit.plugin.java.JavaPlugin
 
 class Tweak : JavaPlugin() {
@@ -41,34 +41,16 @@ class Tweak : JavaPlugin() {
 
     override fun onDisable() {
         server.consoleSender.sendMessage(MessageReplace.deserialize("$pluginPrefix 插件开始卸载 $pluginVersion"))
-
-        unregisterCommand()
     }
+
 
     private fun registerCommand() {
-        val craftServer = server as CraftServer
-        val dispatcher = craftServer.handle.server.commands.dispatcher
-
-        Literal.literal(dispatcher)
-    }
-
-    private fun unregisterCommand() {
-        val commandMap = server.commandMap
-        val bukkitBrigForwardingMap = commandMap.knownCommands // 这是自定义 map 不支持迭代器
-        val removes: MutableList<String> = arrayListOf() // 用于记录需要删除的键
-
-        for ((key, value) in bukkitBrigForwardingMap) {
-            if (key.startsWith(lowercaseName)) { // 取消注册命令，以及别名和命名空间
-                value.unregister(commandMap)
-                removes.add(key)
-            }
-        }
-
-        // 遍历结束后，删除记录下来的键
-        for (key in removes) {
-            bukkitBrigForwardingMap.remove(key) // 删除相应的键
+        val manager= lifecycleManager
+        manager.registerEventHandler(LifecycleEvents.COMMANDS) { event ->
+            event.registrar().register(Literal.literal(lowercaseName), Literal.aliases)
         }
     }
+
 
 }
 

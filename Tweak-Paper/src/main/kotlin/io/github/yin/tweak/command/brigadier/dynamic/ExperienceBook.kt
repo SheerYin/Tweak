@@ -4,11 +4,11 @@ import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import io.github.yin.tweak.Tweak
 import io.github.yin.tweak.support.MessageReplace
+import io.papermc.paper.command.brigadier.CommandSourceStack
+import io.papermc.paper.command.brigadier.Commands
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
-import net.minecraft.commands.CommandSourceStack
-import net.minecraft.commands.Commands
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
@@ -39,7 +39,7 @@ object ExperienceBook {
                         val sender = context.source.sender
                         val self = sender as? Player
                         if (self == null) {
-                            sender.sendMessage(MessageReplace.deserialize("${Tweak.lowercaseName} 此命令仅限玩家执行"))
+                            sender.sendMessage(MessageReplace.deserialize("${Tweak.pluginPrefix} 此命令仅限玩家执行"))
                             return@executes 1
                         }
 
@@ -63,12 +63,12 @@ object ExperienceBook {
                                 itemMeta.lore(listOf(Component.text("已储存 $result 经验").color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false)))
                                 itemStack.itemMeta = itemMeta
 
-                                self.sendMessage(MessageReplace.deserialize("${Tweak.lowercaseName} 存入 $experience 经验到经验书"))
+                                self.sendMessage(MessageReplace.deserialize("${Tweak.pluginPrefix} 存入 $experience 经验到经验书"))
                             } else {
-                                self.sendMessage(MessageReplace.deserialize("${Tweak.lowercaseName} 你没有足够的经验"))
+                                self.sendMessage(MessageReplace.deserialize("${Tweak.pluginPrefix} 你没有足够的经验"))
                             }
                         } else {
-                            self.sendMessage(MessageReplace.deserialize("${Tweak.lowercaseName} 手上不是书，或书太多"))
+                            self.sendMessage(MessageReplace.deserialize("${Tweak.pluginPrefix} 手上不是书，或书太多"))
                         }
 
                         return@executes 1
@@ -81,7 +81,7 @@ object ExperienceBook {
                         val sender = context.source.sender
                         val self = sender as? Player
                         if (self == null) {
-                            sender.sendMessage(MessageReplace.deserialize("${Tweak.lowercaseName} 此命令仅限玩家执行"))
+                            sender.sendMessage(MessageReplace.deserialize("${Tweak.pluginPrefix} 此命令仅限玩家执行"))
                             return@executes 1
                         }
 
@@ -91,7 +91,7 @@ object ExperienceBook {
                             val itemExperience = itemMeta.persistentDataContainer.get(experienceKey, PersistentDataType.INTEGER)
 
                             if (itemExperience == null) {
-                                self.sendMessage(MessageReplace.deserialize("${Tweak.lowercaseName} 这本书没有存入经验"))
+                                self.sendMessage(MessageReplace.deserialize("${Tweak.pluginPrefix} 这本书没有存入经验"))
                             } else {
                                 val experience = context.getArgument("amount", Integer::class.java).toInt()
                                 val result = itemExperience - experience
@@ -108,13 +108,13 @@ object ExperienceBook {
                                         itemStack.itemMeta = itemMeta
                                     }
 
-                                    self.sendMessage(MessageReplace.deserialize("${Tweak.lowercaseName} 从经验书取出 $experience 经验"))
+                                    self.sendMessage(MessageReplace.deserialize("${Tweak.pluginPrefix} 从经验书取出 $experience 经验"))
                                 } else {
-                                    self.sendMessage(MessageReplace.deserialize("${Tweak.lowercaseName} 这本书取不出这么多经验 $experience"))
+                                    self.sendMessage(MessageReplace.deserialize("${Tweak.pluginPrefix} 这本书取不出这么多经验 $experience"))
                                 }
                             }
                         } else {
-                            self.sendMessage(MessageReplace.deserialize("${Tweak.lowercaseName} 手上不是书，或书太多"))
+                            self.sendMessage(MessageReplace.deserialize("${Tweak.pluginPrefix} 手上不是书，或书太多"))
                         }
 
                         return@executes 1
