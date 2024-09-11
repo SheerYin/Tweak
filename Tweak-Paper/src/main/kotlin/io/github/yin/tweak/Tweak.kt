@@ -43,14 +43,12 @@ class Tweak : JavaPlugin() {
         server.consoleSender.sendMessage(MessageReplace.deserialize("$pluginPrefix 插件开始卸载 $pluginVersion"))
     }
 
-
     private fun registerCommand() {
         val manager= lifecycleManager
         manager.registerEventHandler(LifecycleEvents.COMMANDS) { event ->
-            event.registrar().register(Literal.literal(lowercaseName), Literal.aliases)
+            event.registrar().register(Literal.node(lowercaseName), Literal.aliases)
         }
     }
-
 
 }
 

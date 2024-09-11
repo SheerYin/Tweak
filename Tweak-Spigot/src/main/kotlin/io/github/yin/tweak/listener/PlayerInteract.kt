@@ -36,7 +36,7 @@ object PlayerInteract : Listener {
         if (cooldown > 0) {
             return
         }
-        val title = Enumeration.shulkerBoxColors[itemStack.type]
+        val title = Enumeration.shulkerBoxColors[material]
         if (title != null) {
             if (itemStack.amount == 1) {
                 shulkerOpen(player, itemStack, title)

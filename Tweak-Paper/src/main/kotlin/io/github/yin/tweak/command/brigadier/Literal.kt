@@ -9,7 +9,7 @@ import org.bukkit.entity.Player
 object Literal {
 
     val aliases: List<String> = emptyList()
-    fun literal(name: String): LiteralCommandNode<CommandSourceStack> {
+    fun node(name: String): LiteralCommandNode<CommandSourceStack> {
         val permission = "$name.command"
 
         return Commands.literal(name)
