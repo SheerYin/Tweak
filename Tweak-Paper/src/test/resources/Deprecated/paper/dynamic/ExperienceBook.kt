@@ -20,7 +20,10 @@ object ExperienceBook {
     fun dynamic(permission: String): LiteralArgumentBuilder<CommandSourceStack> {
 
         return Commands.literal("experiencebook")
-            .requires { stack -> val sender = stack.sender; return@requires sender !is Player || sender.hasPermission("${permission}.experiencebook") }
+            .requires { stack ->
+                val sender =
+                    stack.sender; return@requires sender !is Player || sender.hasPermission("${permission}.experiencebook")
+            }
             .then(Commands.literal("deposit")
                 .then(Commands.argument("amount", IntegerArgumentType.integer(1))
                     .suggests { context, builder ->
@@ -55,11 +58,23 @@ object ExperienceBook {
 
                                 self.giveExp(newExperience)
 
-                                val itemExperience = itemMeta.persistentDataContainer.get(experienceKey, PersistentDataType.INTEGER) ?: 0
+                                val itemExperience = itemMeta.persistentDataContainer.get(
+                                    experienceKey,
+                                    PersistentDataType.INTEGER
+                                ) ?: 0
                                 val result = itemExperience + experience
 
-                                itemMeta.persistentDataContainer.set(experienceKey, PersistentDataType.INTEGER, result)
-                                itemMeta.lore(listOf(Component.text("已储存 $result 经验").color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false)))
+                                itemMeta.persistentDataContainer.set(
+                                    experienceKey,
+                                    PersistentDataType.INTEGER,
+                                    result
+                                )
+                                itemMeta.lore(
+                                    listOf(
+                                        Component.text("已储存 $result 经验").color(NamedTextColor.WHITE)
+                                            .decoration(TextDecoration.ITALIC, false)
+                                    )
+                                )
                                 itemStack.itemMeta = itemMeta
 
                                 self.sendMessage(MessageReplace.deserialize("<white>[<green>微调<white>] 存入 $experience 经验到经验书"))
@@ -87,7 +102,8 @@ object ExperienceBook {
                         val itemStack = self.inventory.itemInMainHand
                         if (itemStack.type == Material.BOOK && itemStack.amount == 1) {
                             val itemMeta = itemStack.itemMeta
-                            val itemExperience = itemMeta.persistentDataContainer.get(experienceKey, PersistentDataType.INTEGER)
+                            val itemExperience =
+                                itemMeta.persistentDataContainer.get(experienceKey, PersistentDataType.INTEGER)
 
                             if (itemExperience == null) {
                                 self.sendMessage(MessageReplace.deserialize("<white>[<green>微调<white>] 这本书没有存入经验"))
@@ -102,8 +118,17 @@ object ExperienceBook {
                                         itemMeta.lore(null)
                                         itemStack.itemMeta = itemMeta
                                     } else {
-                                        itemMeta.persistentDataContainer.set(experienceKey, PersistentDataType.INTEGER, result)
-                                        itemMeta.lore(listOf(Component.text("已储存 $result 经验").color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false)))
+                                        itemMeta.persistentDataContainer.set(
+                                            experienceKey,
+                                            PersistentDataType.INTEGER,
+                                            result
+                                        )
+                                        itemMeta.lore(
+                                            listOf(
+                                                Component.text("已储存 $result 经验").color(NamedTextColor.WHITE)
+                                                    .decoration(TextDecoration.ITALIC, false)
+                                            )
+                                        )
                                         itemStack.itemMeta = itemMeta
                                     }
 
@@ -121,8 +146,6 @@ object ExperienceBook {
                 )
             )
     }
-
-
 
 
 }

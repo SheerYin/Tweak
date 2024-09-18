@@ -47,7 +47,7 @@ object LiteCommand {
         sender: CommandSender,
         remaining: String,
         arguments: List<String>,
-        suggestionsBuilder: SuggestionsBuilder
+        suggestionsBuilder: SuggestionsBuilder,
     ): SuggestionsBuilder {
         when (arguments.size) {
             1 -> {

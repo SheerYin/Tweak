@@ -15,9 +15,11 @@ object Literal {
 
     fun node(): LiteralCommandNode<CommandSourceStack> {
         return Commands.literal(mainCommand)
-            .requires { stack -> val sender = stack.sender; return@requires sender !is Player || sender.hasPermission(
+            .requires { stack ->
+                val sender = stack.sender; return@requires sender !is Player || sender.hasPermission(
                 mainPermission
-            ) }
+            )
+            }
 
             .then(ExperienceBook.dynamic(mainPermission))
             .build()

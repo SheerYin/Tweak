@@ -11,17 +11,23 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.persistence.PersistentDataType
 
 object ExperienceBook {
 
-    val experienceKey = NamespacedKey.minecraft("experience")
+    private val experienceKey = NamespacedKey.minecraft("experience")
+    private val withdrawSound = Sound.ENTITY_PLAYER_LEVELUP
+    private val depositSound = Sound.BLOCK_ANVIL_USE
 
     fun dynamic(permission: String): LiteralArgumentBuilder<CommandSourceStack> {
 
         return Commands.literal("experiencebook")
-            .requires { stack -> val sender = stack.sender; return@requires sender !is Player || sender.hasPermission("${permission}.experiencebook") }
+            .requires { stack ->
+                val sender =
+                    stack.sender; return@requires sender !is Player || sender.hasPermission("${permission}.experiencebook")
+            }
             .then(Commands.literal("deposit")
                 .then(Commands.argument("amount", IntegerArgumentType.integer(1))
                     .suggests { context, builder ->
@@ -56,13 +62,26 @@ object ExperienceBook {
 
                                 self.giveExp(newExperience)
 
-                                val itemExperience = itemMeta.persistentDataContainer.get(experienceKey, PersistentDataType.INTEGER) ?: 0
+                                val itemExperience = itemMeta.persistentDataContainer.get(
+                                    experienceKey,
+                                    PersistentDataType.INTEGER
+                                ) ?: 0
                                 val result = itemExperience + experience
 
-                                itemMeta.persistentDataContainer.set(experienceKey, PersistentDataType.INTEGER, result)
-                                itemMeta.lore(listOf(Component.text("已储存 $result 经验").color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false)))
+                                itemMeta.persistentDataContainer.set(
+                                    experienceKey,
+                                    PersistentDataType.INTEGER,
+                                    result
+                                )
+                                itemMeta.lore(
+                                    listOf(
+                                        Component.text("已储存 $result 经验").color(NamedTextColor.WHITE)
+                                            .decoration(TextDecoration.ITALIC, false)
+                                    )
+                                )
                                 itemStack.itemMeta = itemMeta
 
+                                self.playSound(self.location, depositSound, 1.0f, 1.0f)
                                 self.sendMessage(MessageReplace.deserialize("${Tweak.pluginPrefix} 存入 $experience 经验到经验书"))
                             } else {
                                 self.sendMessage(MessageReplace.deserialize("${Tweak.pluginPrefix} 你没有足够的经验"))
@@ -88,7 +107,8 @@ object ExperienceBook {
                         val itemStack = self.inventory.itemInMainHand
                         if (itemStack.type == Material.BOOK && itemStack.amount == 1) {
                             val itemMeta = itemStack.itemMeta
-                            val itemExperience = itemMeta.persistentDataContainer.get(experienceKey, PersistentDataType.INTEGER)
+                            val itemExperience =
+                                itemMeta.persistentDataContainer.get(experienceKey, PersistentDataType.INTEGER)
 
                             if (itemExperience == null) {
                                 self.sendMessage(MessageReplace.deserialize("${Tweak.pluginPrefix} 这本书没有存入经验"))
@@ -103,11 +123,22 @@ object ExperienceBook {
                                         itemMeta.lore(null)
                                         itemStack.itemMeta = itemMeta
                                     } else {
-                                        itemMeta.persistentDataContainer.set(experienceKey, PersistentDataType.INTEGER, result)
-                                        itemMeta.lore(listOf(Component.text("已储存 $result 经验").color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false)))
+                                        itemMeta.persistentDataContainer.set(
+                                            experienceKey,
+                                            PersistentDataType.INTEGER,
+                                            result
+                                        )
+                                        itemMeta.lore(
+                                            listOf(
+                                                Component.text("已储存 $result 经验").color(NamedTextColor.WHITE)
+                                                    .decoration(TextDecoration.ITALIC, false)
+                                            )
+                                        )
                                         itemStack.itemMeta = itemMeta
                                     }
 
+                                    // self.playSound(self.location, withdrawSound, 1.0f, 1.0f)
+                                    // 取出经验时会自动升级
                                     self.sendMessage(MessageReplace.deserialize("${Tweak.pluginPrefix} 从经验书取出 $experience 经验"))
                                 } else {
                                     self.sendMessage(MessageReplace.deserialize("${Tweak.pluginPrefix} 这本书取不出这么多经验 $experience"))
@@ -122,8 +153,6 @@ object ExperienceBook {
                 )
             )
     }
-
-
 
 
 }

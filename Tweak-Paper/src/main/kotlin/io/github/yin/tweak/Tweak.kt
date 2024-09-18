@@ -34,6 +34,8 @@ class Tweak : JavaPlugin() {
         server.pluginManager.registerEvents(PlayerDeath, this)
         server.pluginManager.registerEvents(PlayerDropItem, this)
         server.pluginManager.registerEvents(PlayerInteract, this)
+        server.pluginManager.registerEvents(PlayerJoin, this)
+        server.pluginManager.registerEvents(PlayerQuit, this)
         server.pluginManager.registerEvents(ProjectileHit, this)
 
         registerCommand()
@@ -44,7 +46,7 @@ class Tweak : JavaPlugin() {
     }
 
     private fun registerCommand() {
-        val manager= lifecycleManager
+        val manager = lifecycleManager
         manager.registerEventHandler(LifecycleEvents.COMMANDS) { event ->
             event.registrar().register(Literal.node(lowercaseName), Literal.aliases)
         }

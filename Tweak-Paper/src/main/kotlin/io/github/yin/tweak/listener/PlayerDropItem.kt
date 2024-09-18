@@ -1,9 +1,7 @@
 package io.github.yin.tweak.listener
 
-import io.github.yin.tweak.common.Enumeration
-import io.github.yin.tweak.inventory.holder.ShulkerViewHolder
-import io.github.yin.tweak.service.SimpleShulkerBox
-import org.bukkit.entity.Player
+import io.github.yin.tweak.controller.PlayerDropItemController
+import io.github.yin.tweak.inventory.holder.QuickShulkerBoxHolder
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -14,19 +12,14 @@ object PlayerDropItem : Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
     fun onPlayerDropItem(event: PlayerDropItemEvent) {
         val player = event.player
-        shulkerCancel(event, player)
 
-    }
+        val inventoryView = player.openInventory
+        val topInventory = inventoryView.topInventory
+        val holder = topInventory.holder
 
-    fun shulkerCancel(event: PlayerDropItemEvent, player: Player) {
-        val holder = player.openInventory.topInventory.holder
-        if (holder is ShulkerViewHolder) {
+        if (holder is QuickShulkerBoxHolder) {
             val itemStack = event.itemDrop.itemStack
-            if (itemStack.type in Enumeration.shulkerBoxes) {
-                if (SimpleShulkerBox.check(itemStack, holder)) {
-                    event.isCancelled = true
-                }
-            }
+            PlayerDropItemController.handleDrop(event, holder, itemStack)
         }
     }
 

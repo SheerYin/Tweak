@@ -1,44 +1,30 @@
 package io.github.yin.tweak.listener
 
-import io.github.yin.tweak.common.Enumeration
-import io.github.yin.tweak.inventory.holder.ShulkerViewHolder
-import io.github.yin.tweak.service.SimpleShulkerBox
+import io.github.yin.tweak.controller.InventoryCloseController
+import io.github.yin.tweak.inventory.holder.QuickShulkerBoxHolder
+import io.github.yin.tweak.service.QuickEnderChest
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.inventory.InventoryType
 
 object InventoryClose : Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
     fun onInventoryClose(event: InventoryCloseEvent) {
-        val holder = event.inventory.holder
-        if (holder is ShulkerViewHolder) {
-            if (holder.save) {
-                return
-            }
-            shulkerSave(event, holder)
-        }
-    }
-
-    private fun shulkerSave(event: InventoryCloseEvent, holder: ShulkerViewHolder) {
         val inventoryView = event.view
-        val cursor = inventoryView.cursor
-        val player = inventoryView.player as Player
-        if (cursor.type in Enumeration.shulkerBoxes) {
-            if (SimpleShulkerBox.saveInventory(cursor, holder)) {
-                player.playSound(player.location, SimpleShulkerBox.soundClose, 1.0f, 1.0f)
-                return // 保存成功提前返回
-            }
+        val topInventory = inventoryView.topInventory
+        val holder = topInventory.holder
+
+        if (holder is QuickShulkerBoxHolder) {
+            InventoryCloseController.handleClose(inventoryView, holder)
         }
-        for (stack in player.inventory.contents) {
-            if (stack != null && stack.type in Enumeration.shulkerBoxes) {
-                if (SimpleShulkerBox.saveInventory(stack, holder)) {
-                    player.playSound(player.location, SimpleShulkerBox.soundClose, 1.0f, 1.0f)
-                    return // 保存成功提前返回
-                }
-            }
+
+        if (topInventory.type == InventoryType.ENDER_CHEST) {
+            val player = inventoryView.player as Player
+            QuickEnderChest.close(player)
         }
     }
 

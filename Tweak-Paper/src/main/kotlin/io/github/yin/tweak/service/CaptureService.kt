@@ -1,52 +1,12 @@
-package io.github.yin.tweak.common
+package io.github.yin.tweak.service
 
-import io.github.yin.tweak.support.MessageReplace
-import net.kyori.adventure.text.Component
 import org.bukkit.Material
-import org.bukkit.entity.EntityType
+import org.bukkit.Sound
+import org.bukkit.entity.*
 import org.bukkit.inventory.ItemStack
+import kotlin.random.Random
 
-object Enumeration {
-
-    val shulkerBoxes = hashSetOf(
-        Material.SHULKER_BOX,
-        Material.WHITE_SHULKER_BOX,
-        Material.ORANGE_SHULKER_BOX,
-        Material.MAGENTA_SHULKER_BOX,
-        Material.LIGHT_BLUE_SHULKER_BOX,
-        Material.YELLOW_SHULKER_BOX,
-        Material.LIME_SHULKER_BOX,
-        Material.PINK_SHULKER_BOX,
-        Material.GRAY_SHULKER_BOX,
-        Material.LIGHT_GRAY_SHULKER_BOX,
-        Material.CYAN_SHULKER_BOX,
-        Material.PURPLE_SHULKER_BOX,
-        Material.BLUE_SHULKER_BOX,
-        Material.BROWN_SHULKER_BOX,
-        Material.GREEN_SHULKER_BOX,
-        Material.RED_SHULKER_BOX,
-        Material.BLACK_SHULKER_BOX,
-    )
-
-    val shulkerBoxColors = hashMapOf(
-        Material.SHULKER_BOX to Component.text("潜影盒"),
-        Material.WHITE_SHULKER_BOX to MessageReplace.deserialize("<color:#FFFFFF>潜影盒"),
-        Material.ORANGE_SHULKER_BOX to MessageReplace.deserialize("<color:#FF7F00>潜影盒"),
-        Material.MAGENTA_SHULKER_BOX to MessageReplace.deserialize("<color:#FF00B7>潜影盒"),
-        Material.LIGHT_BLUE_SHULKER_BOX to MessageReplace.deserialize("<color:#A0D3E8>潜影盒"),
-        Material.YELLOW_SHULKER_BOX to MessageReplace.deserialize("<color:#FFFF00>潜影盒"),
-        Material.LIME_SHULKER_BOX to MessageReplace.deserialize("<color:#00FF00>潜影盒"),
-        Material.PINK_SHULKER_BOX to MessageReplace.deserialize("<color:#FFB6C1>潜影盒"),
-        Material.GRAY_SHULKER_BOX to MessageReplace.deserialize("<color:#808080>潜影盒"),
-        Material.LIGHT_GRAY_SHULKER_BOX to MessageReplace.deserialize("<color:#D3D3D3>潜影盒"),
-        Material.CYAN_SHULKER_BOX to MessageReplace.deserialize("<color:#00FFFF>潜影盒"),
-        Material.PURPLE_SHULKER_BOX to MessageReplace.deserialize("<color:#800080>潜影盒"),
-        Material.BLUE_SHULKER_BOX to MessageReplace.deserialize("<color:#0000FF>潜影盒"),
-        Material.BROWN_SHULKER_BOX to MessageReplace.deserialize("<color:#8B4513>潜影盒"),
-        Material.GREEN_SHULKER_BOX to MessageReplace.deserialize("<color:#008000>潜影盒"),
-        Material.RED_SHULKER_BOX to MessageReplace.deserialize("<color:#FF0000>潜影盒"),
-        Material.BLACK_SHULKER_BOX to MessageReplace.deserialize("<color:#000000>潜影盒")
-    )
+object CaptureService {
 
     val entityEggs = hashMapOf(
         EntityType.ARMADILLO to ItemStack(Material.ARMADILLO_SPAWN_EGG),
@@ -213,4 +173,23 @@ object Enumeration {
         Material.ZOMBIE_VILLAGER_SPAWN_EGG,
         Material.ZOMBIFIED_PIGLIN_SPAWN_EGG
     )
+
+    private val sound = Sound.ENTITY_ITEM_PICKUP
+
+    fun capture(projectile: Projectile, hit: Entity) {
+        if (projectile is Snowball && Random.nextDouble() < 0.1) {
+            val livingEntity = hit as? LivingEntity ?: return
+            // 如果有自定义名称
+            if (livingEntity.customName() == null) {
+                entityEggs[livingEntity.type]?.let { itemStack ->
+                    val location = livingEntity.location
+                    val world = location.world!!
+                    world.dropItemNaturally(location, itemStack)
+                    world.playSound(location, sound, 1F, 1F)
+                    livingEntity.remove()
+                }
+            }
+        }
+    }
+
 }
