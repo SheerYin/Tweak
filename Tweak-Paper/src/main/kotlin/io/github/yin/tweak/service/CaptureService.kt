@@ -2,7 +2,8 @@ package io.github.yin.tweak.service
 
 import org.bukkit.Material
 import org.bukkit.Sound
-import org.bukkit.entity.*
+import org.bukkit.entity.EntityType
+import org.bukkit.entity.LivingEntity
 import org.bukkit.inventory.ItemStack
 import kotlin.random.Random
 
@@ -176,18 +177,14 @@ object CaptureService {
 
     private val sound = Sound.ENTITY_ITEM_PICKUP
 
-    fun capture(projectile: Projectile, hit: Entity) {
-        if (projectile is Snowball && Random.nextDouble() < 0.1) {
-            val livingEntity = hit as? LivingEntity ?: return
-            // 如果有自定义名称
-            if (livingEntity.customName() == null) {
-                entityEggs[livingEntity.type]?.let { itemStack ->
-                    val location = livingEntity.location
-                    val world = location.world!!
-                    world.dropItemNaturally(location, itemStack)
-                    world.playSound(location, sound, 1F, 1F)
-                    livingEntity.remove()
-                }
+    fun capture(livingEntity: LivingEntity) {
+        if (Random.nextDouble() < 0.1) {
+            entityEggs[livingEntity.type]?.let { itemStack ->
+                val location = livingEntity.location
+                val world = location.world!!
+                world.dropItemNaturally(location, itemStack)
+                world.playSound(location, sound, 1F, 1F)
+                livingEntity.remove()
             }
         }
     }

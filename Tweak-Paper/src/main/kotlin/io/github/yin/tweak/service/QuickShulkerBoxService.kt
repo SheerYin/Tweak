@@ -1,6 +1,7 @@
 package io.github.yin.tweak.service
 
 import io.github.yin.tweak.Tweak
+import io.github.yin.tweak.cache.InventoryStateCache
 import io.github.yin.tweak.inventory.holder.QuickShulkerBoxHolder
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
@@ -99,11 +100,6 @@ object QuickShulkerBoxService {
     private val namespacedKey = NamespacedKey(Tweak.instance, "shulker")
     private val inventoryType = InventoryType.SHULKER_BOX
 
-    val cooldown = 5
-
-    val openSound = Sound.BLOCK_SHULKER_BOX_OPEN
-    val closeSound = Sound.BLOCK_SHULKER_BOX_CLOSE
-
     private fun load(itemStack: ItemStack, title: Component): QuickShulkerBoxHolder {
         val itemMeta = itemStack.itemMeta
         val uuid = UUID.randomUUID()
@@ -145,8 +141,14 @@ object QuickShulkerBoxService {
         return target == holder.uuid.toString()
     }
 
+    private const val cooldown = 5
+
+    private val openSound = Sound.BLOCK_SHULKER_BOX_OPEN
+    private val closeSound = Sound.BLOCK_SHULKER_BOX_CLOSE
+
     fun open(inventoryView: InventoryView, topInventory: Inventory, current: ItemStack, title: Component) {
         val player = inventoryView.player as Player
+        val playerName = player.name
         val currentCooldown = player.getCooldown(current.type)
 
         if (currentCooldown > 0) {
@@ -176,29 +178,47 @@ object QuickShulkerBoxService {
                 }
             }
         }
+
+        if (topInventory.type != InventoryType.CRAFTING) {
+            InventoryStateCache.silence[playerName] = true
+        }
+
         val itemMeta = current.itemMeta
         val quickShulkerBoxHolder = if (itemMeta.hasDisplayName()) {
             load(current, itemMeta.displayName()!!)
         } else {
             load(current, title)
         }
-        quickShulkerBoxHolder.openTop(player, current)
+
+        Bukkit.getScheduler().runTask(Tweak.instance, Runnable {
+            player.openInventory(quickShulkerBoxHolder.inventory)
+            player.playSound(player.location, openSound, 1F, 1F)
+            player.setCooldown(current.type, cooldown)
+        })
     }
 
     fun close(inventoryView: InventoryView, holder: QuickShulkerBoxHolder) {
-        val cursor = inventoryView.cursor
         val player = inventoryView.player as Player
-        if (cursor.type in shulkerBoxes) {
-            if (save(cursor, holder)) {
-                player.playSound(player.location, closeSound, 1F, 1F)
-                return // 保存成功提前返回
-            }
+        val playerName = player.name
+        if (InventoryStateCache.silence[playerName] != true) {
+            player.playSound(player.location, closeSound, 1F, 1F)
         }
-        for (stack in player.inventory.contents) {
-            if (stack != null && stack.type in shulkerBoxes) {
-                if (save(stack, holder)) {
-                    player.playSound(player.location, closeSound, 1F, 1F)
+        InventoryStateCache.silence[playerName] = false
+
+        if (holder.save) {
+            return
+        } else {
+            val cursor = inventoryView.cursor
+            if (cursor.type in shulkerBoxes) {
+                if (save(cursor, holder)) {
                     return // 保存成功提前返回
+                }
+            }
+            for (stack in player.inventory.contents) {
+                if (stack != null && stack.type in shulkerBoxes) {
+                    if (save(stack, holder)) {
+                        return // 保存成功提前返回
+                    }
                 }
             }
         }

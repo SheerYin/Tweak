@@ -1,8 +1,9 @@
 package io.github.yin.tweak.controller
 
 import io.github.yin.tweak.inventory.holder.QuickShulkerBoxHolder
-import io.github.yin.tweak.service.QuickEnderChest
+import io.github.yin.tweak.service.QuickEnderChestService
 import io.github.yin.tweak.service.QuickShulkerBoxService
+import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryView
@@ -39,9 +40,10 @@ object InventoryController {
             val material = current.type
             val title = QuickShulkerBoxService.shulkerBoxColors[material]
             if (title == null) {
-                if (material == QuickEnderChest.enderChest) {
+                if (material == QuickEnderChestService.enderChest) {
                     event.isCancelled = true
-                    QuickEnderChest.open(inventoryView, topInventory)
+                    val player = inventoryView.player as Player
+                    QuickEnderChestService.open(topInventory, player)
                 }
             } else {
                 event.isCancelled = true

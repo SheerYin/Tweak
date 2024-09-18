@@ -1,7 +1,7 @@
 package io.github.yin.tweak.listener
 
-import io.github.yin.tweak.controller.PlayerDropItemController
 import io.github.yin.tweak.inventory.holder.QuickShulkerBoxHolder
+import io.github.yin.tweak.service.QuickShulkerBoxService
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -19,7 +19,10 @@ object PlayerDropItem : Listener {
 
         if (holder is QuickShulkerBoxHolder) {
             val itemStack = event.itemDrop.itemStack
-            PlayerDropItemController.handleDrop(event, holder, itemStack)
+            if (QuickShulkerBoxService.check(itemStack, holder)) {
+                event.isCancelled = true
+                return
+            }
         }
     }
 

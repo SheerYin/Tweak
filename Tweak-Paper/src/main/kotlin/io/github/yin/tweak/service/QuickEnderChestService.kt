@@ -1,7 +1,7 @@
 package io.github.yin.tweak.service
 
 import io.github.yin.tweak.Tweak
-import io.github.yin.tweak.cache.InventoryStatusCache
+import io.github.yin.tweak.cache.InventoryStateCache
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -9,28 +9,34 @@ import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.inventory.Inventory
-import org.bukkit.inventory.InventoryView
 
-object QuickEnderChest {
+object QuickEnderChestService {
 
     val enderChest = Material.ENDER_CHEST
-    val cooldown = 5
 
-    val openSound = Sound.BLOCK_ENDER_CHEST_OPEN
-    val closeSound = Sound.BLOCK_ENDER_CHEST_CLOSE
+    private const val cooldown = 5
 
-    fun open(inventoryView: InventoryView, topInventory: Inventory) {
-        val player = inventoryView.player as Player
+    private val openSound = Sound.BLOCK_ENDER_CHEST_OPEN
+    private val closeSound = Sound.BLOCK_ENDER_CHEST_CLOSE
+
+    fun open(topInventory: Inventory, player: Player) {
         val currentCooldown = player.getCooldown(enderChest)
         if (currentCooldown > 0) {
             return
         }
-        if (topInventory.type == InventoryType.ENDER_CHEST) {
+
+        val inventoryType = topInventory.type
+        if (inventoryType == InventoryType.ENDER_CHEST) {
             return
+        } else if (inventoryType != InventoryType.CRAFTING) {
+            val playerName = player.name
+            InventoryStateCache.silence[playerName] = true
         }
+
         Bukkit.getScheduler().runTask(Tweak.instance, Runnable {
             player.openInventory(player.enderChest)
             // "container.enderchest"
+
             player.playSound(player.location, openSound, 1F, 1F)
             player.setCooldown(enderChest, cooldown)
         })
@@ -39,18 +45,15 @@ object QuickEnderChest {
     fun interact(block: Block, player: Player) {
         if (block.type == enderChest) {
             val playerName = player.name
-            val inventoryStatus = InventoryStatusCache.map[playerName] ?: return
-            inventoryStatus.enderChest = true
+            InventoryStateCache.silence[playerName] = true
         }
     }
 
     fun close(player: Player) {
         val playerName = player.name
-        val inventoryStatus = InventoryStatusCache.map[playerName] ?: return
-        if (inventoryStatus.enderChest) {
-            inventoryStatus.enderChest = false
-        } else {
+        if (InventoryStateCache.silence[playerName] != true) {
             player.playSound(player.location, closeSound, 1F, 1F)
         }
+        InventoryStateCache.silence[playerName] = false
     }
 }

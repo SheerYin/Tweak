@@ -1,7 +1,7 @@
 package io.github.yin.tweak.listener
 
-import io.github.yin.tweak.controller.PlayerDeathController
 import io.github.yin.tweak.inventory.holder.QuickShulkerBoxHolder
+import io.github.yin.tweak.service.QuickShulkerBoxService
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -17,7 +17,7 @@ object PlayerDeath : Listener {
         val holder = topInventory.holder
 
         if (holder is QuickShulkerBoxHolder) {
-            PlayerDeathController.handleDeath(inventoryView, holder)
+            QuickShulkerBoxService.close(inventoryView, holder)
         }
     }
 
