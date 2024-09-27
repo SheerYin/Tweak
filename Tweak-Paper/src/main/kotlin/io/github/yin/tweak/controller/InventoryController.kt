@@ -88,4 +88,46 @@ object InventoryController {
         }
     }
 
+
+    fun handleNumber(event: InventoryClickEvent, inventoryView: InventoryView, topInventory: Inventory) {
+        val rawSlot = event.rawSlot
+        if (rawSlot < topInventory.size) {
+            return
+        }
+
+        val holder = topInventory.holder
+        if (holder is QuickShulkerBoxHolder) {
+
+            val current = event.currentItem
+            val hot = (inventoryView.player as Player).inventory.getItem(event.hotbarButton)
+            if (current != null && current.type in QuickShulkerBoxService.shulkerBoxes) {
+                if (QuickShulkerBoxService.check(current, holder)) {
+                    event.isCancelled = true
+                }
+            } else if (hot != null && hot.type in QuickShulkerBoxService.shulkerBoxes) {
+                if (QuickShulkerBoxService.check(hot, holder)) {
+                    event.isCancelled = true
+                }
+            }
+        }
+    }
+
+    fun handleSwap(event: InventoryClickEvent, inventoryView: InventoryView, topInventory: Inventory) {
+        val rawSlot = event.rawSlot
+        if (rawSlot < topInventory.size) {
+            return
+        }
+
+        val holder = topInventory.holder
+        if (holder is QuickShulkerBoxHolder) {
+
+            val current = event.currentItem
+            if (current != null && current.type in QuickShulkerBoxService.shulkerBoxes) {
+                if (QuickShulkerBoxService.check(current, holder)) {
+                    event.isCancelled = true
+                }
+            }
+        }
+    }
+
 }

@@ -30,7 +30,9 @@ object InventoryClick : Listener {
             ClickType.WINDOW_BORDER_LEFT -> return
             ClickType.WINDOW_BORDER_RIGHT -> return
             ClickType.MIDDLE -> return
-            ClickType.NUMBER_KEY -> return
+            ClickType.NUMBER_KEY -> {
+                InventoryController.handleNumber(event, inventoryView, topInventory)
+            }
             ClickType.DOUBLE_CLICK -> return
             ClickType.DROP -> {
                 InventoryController.handleDrop(event, inventoryView, topInventory)
@@ -41,9 +43,13 @@ object InventoryClick : Listener {
             }
 
             ClickType.CREATIVE -> return
-            ClickType.SWAP_OFFHAND -> return
+            ClickType.SWAP_OFFHAND -> {
+                InventoryController.handleSwap(event, inventoryView, topInventory)
+            }
             ClickType.UNKNOWN -> return
         }
     }
+
+
 
 }

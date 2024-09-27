@@ -13,11 +13,7 @@ object Literal {
         val permission = "$name.command"
 
         return Commands.literal(name)
-            .requires { stack ->
-                val sender = stack.sender; return@requires sender !is Player || sender.hasPermission(
-                permission
-            )
-            }
+            .requires { stack -> val sender = stack.sender; return@requires sender !is Player || sender.hasPermission(permission) }
 
             .then(ExperienceBook.dynamic(permission))
 

@@ -2,6 +2,8 @@ package io.github.yin.tweak.service
 
 import io.github.yin.tweak.Tweak
 import io.github.yin.tweak.cache.InventoryStateCache
+import io.github.yin.tweak.support.MessageReplace
+import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -34,7 +36,8 @@ object QuickEnderChestService {
         }
 
         Bukkit.getScheduler().runTask(Tweak.instance, Runnable {
-            player.openInventory(player.enderChest)
+            val inventoryView = player.openInventory(player.enderChest)!!
+            inventoryView.title = MessageReplace.componentText(Component.translatable("container.enderchest"))
             // "container.enderchest"
 
             player.playSound(player.location, openSound, 1F, 1F)

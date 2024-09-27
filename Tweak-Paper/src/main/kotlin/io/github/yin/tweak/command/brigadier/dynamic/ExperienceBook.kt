@@ -24,10 +24,7 @@ object ExperienceBook {
     fun dynamic(permission: String): LiteralArgumentBuilder<CommandSourceStack> {
 
         return Commands.literal("experiencebook")
-            .requires { stack ->
-                val sender =
-                    stack.sender; return@requires sender !is Player || sender.hasPermission("${permission}.experiencebook")
-            }
+            .requires { stack -> val sender = stack.sender; return@requires sender !is Player || sender.hasPermission("${permission}.experiencebook") }
             .then(Commands.literal("deposit")
                 .then(Commands.argument("amount", IntegerArgumentType.integer(1))
                     .suggests { context, builder ->
