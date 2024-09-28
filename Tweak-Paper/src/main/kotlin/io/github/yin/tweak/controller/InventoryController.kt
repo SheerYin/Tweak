@@ -11,6 +11,8 @@ import org.bukkit.inventory.InventoryView
 object InventoryController {
 
     fun handleLeft(event: InventoryClickEvent, inventoryView: InventoryView, topInventory: Inventory) {
+        val holder = topInventory.holder as? QuickShulkerBoxHolder ?: return
+
         val rawSlot = event.rawSlot
         if (rawSlot < topInventory.size) {
             return
@@ -18,12 +20,9 @@ object InventoryController {
 
         val current = event.currentItem ?: return
         if (current.type in QuickShulkerBoxService.shulkerBoxes) {
-            val holder = topInventory.holder
-            if (holder is QuickShulkerBoxHolder) {
-                if (QuickShulkerBoxService.check(current, holder)) {
-                    event.isCancelled = true
-                    return
-                }
+            val slot = event.slot
+            if (slot == holder.index) {
+                event.isCancelled = true
             }
         }
     }
@@ -35,7 +34,6 @@ object InventoryController {
         }
 
         val current = event.currentItem ?: return
-
         if (current.amount == 1) {
             val material = current.type
             val title = QuickShulkerBoxService.shulkerBoxColors[material]
@@ -47,7 +45,8 @@ object InventoryController {
                 }
             } else {
                 event.isCancelled = true
-                QuickShulkerBoxService.open(inventoryView, topInventory, current, title)
+                val index = event.slot
+                QuickShulkerBoxService.open(inventoryView, topInventory, current, title, index)
             }
         }
     }
@@ -62,15 +61,17 @@ object InventoryController {
         if (current.type in QuickShulkerBoxService.shulkerBoxes) {
             val holder = topInventory.holder
             if (holder is QuickShulkerBoxHolder) {
-                if (QuickShulkerBoxService.check(current, holder)) {
+                val index = event.slot
+                if (index == holder.index) {
                     event.isCancelled = true
-                    return
                 }
             }
         }
     }
 
     fun handleControlDrop(event: InventoryClickEvent, inventoryView: InventoryView, topInventory: Inventory) {
+        val holder = topInventory.holder as? QuickShulkerBoxHolder ?: return
+
         val rawSlot = event.rawSlot
         if (rawSlot < topInventory.size) {
             return
@@ -78,54 +79,44 @@ object InventoryController {
 
         val current = event.currentItem ?: return
         if (current.type in QuickShulkerBoxService.shulkerBoxes) {
-            val holder = topInventory.holder
-            if (holder is QuickShulkerBoxHolder) {
-                if (QuickShulkerBoxService.check(current, holder)) {
-                    event.isCancelled = true
-                    return
-                }
+            val slot = event.slot
+            if (slot == holder.index) {
+                event.isCancelled = true
             }
         }
     }
 
 
     fun handleNumber(event: InventoryClickEvent, inventoryView: InventoryView, topInventory: Inventory) {
+        val holder = topInventory.holder as? QuickShulkerBoxHolder ?: return
+
         val rawSlot = event.rawSlot
         if (rawSlot < topInventory.size) {
             return
         }
 
-        val holder = topInventory.holder
-        if (holder is QuickShulkerBoxHolder) {
+        val hot = event.hotbarButton
+        val hotber = inventoryView.bottomInventory.getItem(hot)
+        val current = event.currentItem
 
-            val current = event.currentItem
-            val hot = (inventoryView.player as Player).inventory.getItem(event.hotbarButton)
-            if (current != null && current.type in QuickShulkerBoxService.shulkerBoxes) {
-                if (QuickShulkerBoxService.check(current, holder)) {
-                    event.isCancelled = true
-                }
-            } else if (hot != null && hot.type in QuickShulkerBoxService.shulkerBoxes) {
-                if (QuickShulkerBoxService.check(hot, holder)) {
-                    event.isCancelled = true
-                }
-            }
+        if ((hotber?.type in QuickShulkerBoxService.shulkerBoxes && hot == holder.index) || (current?.type in QuickShulkerBoxService.shulkerBoxes && event.slot == holder.index)) {
+            event.isCancelled = true
         }
     }
 
     fun handleSwap(event: InventoryClickEvent, inventoryView: InventoryView, topInventory: Inventory) {
+        val holder = topInventory.holder as? QuickShulkerBoxHolder ?: return
+
         val rawSlot = event.rawSlot
         if (rawSlot < topInventory.size) {
             return
         }
 
-        val holder = topInventory.holder
-        if (holder is QuickShulkerBoxHolder) {
-
-            val current = event.currentItem
-            if (current != null && current.type in QuickShulkerBoxService.shulkerBoxes) {
-                if (QuickShulkerBoxService.check(current, holder)) {
-                    event.isCancelled = true
-                }
+        val current = event.currentItem ?: return
+        if (current.type in QuickShulkerBoxService.shulkerBoxes) {
+            val slot = event.slot
+            if (slot == holder.index) {
+                event.isCancelled = true
             }
         }
     }

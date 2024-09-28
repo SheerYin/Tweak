@@ -16,8 +16,6 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryView
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.BlockStateMeta
-import org.bukkit.persistence.PersistentDataType
-import java.util.*
 
 object QuickShulkerBoxService {
 
@@ -97,48 +95,31 @@ object QuickShulkerBoxService {
             .color(TextColor.fromHexString("#000000"))
     )
 
-    private val namespacedKey = NamespacedKey(Tweak.instance, "shulker")
     private val inventoryType = InventoryType.SHULKER_BOX
 
-    private fun load(itemStack: ItemStack, title: Component): QuickShulkerBoxHolder {
+    private fun load(itemStack: ItemStack, title: Component, index: Int): QuickShulkerBoxHolder {
         val itemMeta = itemStack.itemMeta
-        val uuid = UUID.randomUUID()
-        itemMeta.persistentDataContainer.set(namespacedKey, PersistentDataType.STRING, uuid.toString())
-        itemStack.itemMeta = itemMeta
 
         val shulkerBox = ((itemMeta as BlockStateMeta).blockState) as ShulkerBox
         val inventory = shulkerBox.inventory
 
-        val holder = QuickShulkerBoxHolder(uuid)
+        val holder = QuickShulkerBoxHolder(index)
         holder.top = Bukkit.createInventory(holder, inventoryType, title).apply { contents = inventory.contents }
 
         return holder
     }
 
-    private fun save(itemStack: ItemStack, holder: QuickShulkerBoxHolder): Boolean {
+    private fun save(holder: QuickShulkerBoxHolder, itemStack: ItemStack){
         val itemMeta = itemStack.itemMeta
 
-        val target = itemMeta.persistentDataContainer.get(namespacedKey, PersistentDataType.STRING) ?: return false
-        if (holder.uuid.toString() == target) {
-            val blockStateMeta = itemMeta as BlockStateMeta
-            val shulkerBox = blockStateMeta.blockState as ShulkerBox
-            shulkerBox.inventory.contents = holder.inventory.contents
-            blockStateMeta.blockState = shulkerBox
+        val blockStateMeta = itemMeta as BlockStateMeta
+        val shulkerBox = blockStateMeta.blockState as ShulkerBox
+        shulkerBox.inventory.contents = holder.inventory.contents
+        blockStateMeta.blockState = shulkerBox
 
-            blockStateMeta.persistentDataContainer.remove(namespacedKey)
+        itemStack.itemMeta = blockStateMeta
 
-            itemStack.itemMeta = blockStateMeta
-
-            holder.save = true
-            return true
-        }
-        return false
-    }
-
-    fun check(itemStack: ItemStack, holder: QuickShulkerBoxHolder): Boolean {
-        val itemMeta = itemStack.itemMeta
-        val target = itemMeta.persistentDataContainer.get(namespacedKey, PersistentDataType.STRING) ?: return false
-        return target == holder.uuid.toString()
+        holder.save = true
     }
 
     private const val cooldown = 5
@@ -146,7 +127,7 @@ object QuickShulkerBoxService {
     private val openSound = Sound.BLOCK_SHULKER_BOX_OPEN
     private val closeSound = Sound.BLOCK_SHULKER_BOX_CLOSE
 
-    fun open(inventoryView: InventoryView, topInventory: Inventory, current: ItemStack, title: Component) {
+    fun open(inventoryView: InventoryView, topInventory: Inventory, current: ItemStack, title: Component, index: Int) {
         val player = inventoryView.player as Player
         val playerName = player.name
         val currentCooldown = player.getCooldown(current.type)
@@ -157,25 +138,9 @@ object QuickShulkerBoxService {
 
         val holder = topInventory.holder
         if (holder is QuickShulkerBoxHolder) {
-            if (check(current, holder)) {
-                return
-            } else {
-                val cursor = inventoryView.cursor
-                var saveSuccess = false
-                if (cursor.type in shulkerBoxes) {
-                    // 如果保存成功
-                    saveSuccess = save(cursor, holder)
-                }
-                // 保存成功后不再尝试遍历玩家 inventory
-                if (!saveSuccess) {
-                    for (stack in player.inventory.contents) {
-                        if (stack != null && stack.type in shulkerBoxes) {
-                            if (save(stack, holder)) {
-                                break // 保存成功提前结束循环
-                            }
-                        }
-                    }
-                }
+            if (index == holder.index) {
+                val itemStack = inventoryView.bottomInventory.getItem(holder.index)!!
+                save(holder, itemStack)
             }
         }
 
@@ -185,9 +150,9 @@ object QuickShulkerBoxService {
 
         val itemMeta = current.itemMeta
         val quickShulkerBoxHolder = if (itemMeta.hasDisplayName()) {
-            load(current, itemMeta.displayName()!!)
+            load(current, itemMeta.displayName()!!, index)
         } else {
-            load(current, title)
+            load(current, title, index)
         }
 
         Bukkit.getScheduler().runTask(Tweak.instance, Runnable {
@@ -208,19 +173,8 @@ object QuickShulkerBoxService {
         if (holder.save) {
             return
         } else {
-            val cursor = inventoryView.cursor
-            if (cursor.type in shulkerBoxes) {
-                if (save(cursor, holder)) {
-                    return // 保存成功提前返回
-                }
-            }
-            for (stack in player.inventory.contents) {
-                if (stack != null && stack.type in shulkerBoxes) {
-                    if (save(stack, holder)) {
-                        return // 保存成功提前返回
-                    }
-                }
-            }
+            val itemStack = inventoryView.bottomInventory.getItem(holder.index)!!
+            save(holder, itemStack)
         }
     }
 
