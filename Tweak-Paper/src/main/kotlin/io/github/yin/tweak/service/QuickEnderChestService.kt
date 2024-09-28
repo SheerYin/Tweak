@@ -36,8 +36,8 @@ object QuickEnderChestService {
         }
 
         Bukkit.getScheduler().runTask(Tweak.instance, Runnable {
-            val inventoryView = player.openInventory(player.enderChest)!!
-            inventoryView.title = MessageReplace.componentText(Component.translatable("container.enderchest"))
+            player.openInventory(player.enderChest)
+            // inventoryView.title = MessageReplace.componentText(Component.translatable("container.enderchest"))
             // "container.enderchest"
 
             player.playSound(player.location, openSound, 1F, 1F)

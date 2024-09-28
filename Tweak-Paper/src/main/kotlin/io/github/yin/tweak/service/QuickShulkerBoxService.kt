@@ -7,7 +7,6 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Bukkit
 import org.bukkit.Material
-import org.bukkit.NamespacedKey
 import org.bukkit.Sound
 import org.bukkit.block.ShulkerBox
 import org.bukkit.entity.Player
@@ -109,7 +108,7 @@ object QuickShulkerBoxService {
         return holder
     }
 
-    private fun save(holder: QuickShulkerBoxHolder, itemStack: ItemStack){
+    private fun save(holder: QuickShulkerBoxHolder, itemStack: ItemStack) {
         val itemMeta = itemStack.itemMeta
 
         val blockStateMeta = itemMeta as BlockStateMeta
@@ -127,7 +126,7 @@ object QuickShulkerBoxService {
     private val openSound = Sound.BLOCK_SHULKER_BOX_OPEN
     private val closeSound = Sound.BLOCK_SHULKER_BOX_CLOSE
 
-    fun open(inventoryView: InventoryView, topInventory: Inventory, current: ItemStack, title: Component, index: Int) {
+    fun open(inventoryView: InventoryView, topInventory: Inventory, current: ItemStack, title: Component, slot: Int) {
         val player = inventoryView.player as Player
         val playerName = player.name
         val currentCooldown = player.getCooldown(current.type)
@@ -138,8 +137,14 @@ object QuickShulkerBoxService {
 
         val holder = topInventory.holder
         if (holder is QuickShulkerBoxHolder) {
-            if (index == holder.index) {
-                val itemStack = inventoryView.bottomInventory.getItem(holder.index)!!
+            if (slot == holder.index) {
+                return
+            } else {
+                val itemStack = inventoryView.bottomInventory.getItem(holder.index)
+                if (itemStack == null) {
+                    Bukkit.broadcast(Component.text("${Tweak.pluginPrefix} 保存时 bottomInventory 找不到索引所指物品，保存失败。造成物品欺诈漏洞"))
+                    return
+                }
                 save(holder, itemStack)
             }
         }
@@ -150,9 +155,9 @@ object QuickShulkerBoxService {
 
         val itemMeta = current.itemMeta
         val quickShulkerBoxHolder = if (itemMeta.hasDisplayName()) {
-            load(current, itemMeta.displayName()!!, index)
+            load(current, itemMeta.displayName()!!, slot)
         } else {
-            load(current, title, index)
+            load(current, title, slot)
         }
 
         Bukkit.getScheduler().runTask(Tweak.instance, Runnable {
@@ -173,7 +178,11 @@ object QuickShulkerBoxService {
         if (holder.save) {
             return
         } else {
-            val itemStack = inventoryView.bottomInventory.getItem(holder.index)!!
+            val itemStack = inventoryView.bottomInventory.getItem(holder.index)
+            if (itemStack == null) {
+                Bukkit.broadcast(Component.text("${Tweak.pluginPrefix} 保存时 bottomInventory 找不到索引所指物品，保存失败。造成物品欺诈漏洞"))
+                return
+            }
             save(holder, itemStack)
         }
     }

@@ -53,8 +53,8 @@ object PlayerInteract : Listener {
             if (itemStack.amount == 1) {
                 val inventoryView = player.openInventory
                 val topInventory = inventoryView.topInventory
-                val index = player.inventory.heldItemSlot
-                QuickShulkerBoxService.open(inventoryView, topInventory, itemStack, title, index)
+                val slot = player.inventory.heldItemSlot
+                QuickShulkerBoxService.open(inventoryView, topInventory, itemStack, title, slot)
             }
         }
     }

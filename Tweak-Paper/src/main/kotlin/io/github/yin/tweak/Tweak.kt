@@ -32,7 +32,7 @@ class Tweak : JavaPlugin() {
         server.pluginManager.registerEvents(InventoryClick, this)
         server.pluginManager.registerEvents(InventoryClose, this)
         server.pluginManager.registerEvents(PlayerDeath, this)
-        server.pluginManager.registerEvents(PlayerDropItem, this)
+//        server.pluginManager.registerEvents(PlayerDropItem, this)
         server.pluginManager.registerEvents(PlayerInteract, this)
         server.pluginManager.registerEvents(PlayerJoin, this)
         server.pluginManager.registerEvents(PlayerQuit, this)
