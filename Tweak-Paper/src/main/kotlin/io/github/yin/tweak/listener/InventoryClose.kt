@@ -1,14 +1,11 @@
 package io.github.yin.tweak.listener
 
 import io.github.yin.tweak.inventory.holder.QuickShulkerBoxHolder
-import io.github.yin.tweak.service.QuickEnderChestService
 import io.github.yin.tweak.service.QuickShulkerBoxService
-import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryCloseEvent
-import org.bukkit.event.inventory.InventoryType
 
 object InventoryClose : Listener {
 
@@ -20,9 +17,6 @@ object InventoryClose : Listener {
 
         if (holder is QuickShulkerBoxHolder) {
             QuickShulkerBoxService.close(inventoryView, holder)
-        } else if (topInventory.type == InventoryType.ENDER_CHEST) {
-            val player = inventoryView.player as Player
-            QuickEnderChestService.close(player)
         }
     }
 

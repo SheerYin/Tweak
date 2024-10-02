@@ -22,21 +22,12 @@ object PlayerInteract : Listener {
 
                 val itemStack = event.item ?: return
                 val player = event.player
-                interactAir(itemStack, player)
-            }
-        } else if (action == Action.RIGHT_CLICK_BLOCK) {
-            val equipmentSlot = event.hand
-            if (equipmentSlot == EquipmentSlot.HAND) {
-
-                val block = event.clickedBlock ?: return
-                val player = event.player
-
-                QuickEnderChestService.interact(block, player)
+                interactRightAir(itemStack, player)
             }
         }
     }
 
-    private fun interactAir(itemStack: ItemStack, player: Player) {
+    private fun interactRightAir(itemStack: ItemStack, player: Player) {
         val material = itemStack.type
         val cooldown = player.getCooldown(material)
         if (cooldown > 0) {
@@ -47,14 +38,12 @@ object PlayerInteract : Listener {
             if (material == QuickEnderChestService.enderChest) {
                 val inventoryView = player.openInventory
                 val topInventory = inventoryView.topInventory
-                QuickEnderChestService.open(topInventory, player)
+                QuickEnderChestService.inventoryOpen(topInventory, player)
             }
         } else {
             if (itemStack.amount == 1) {
-                val inventoryView = player.openInventory
-                val topInventory = inventoryView.topInventory
                 val slot = player.inventory.heldItemSlot
-                QuickShulkerBoxService.open(inventoryView, topInventory, itemStack, title, slot)
+                QuickShulkerBoxService.inventoryOpen(itemStack, title, slot, player)
             }
         }
     }

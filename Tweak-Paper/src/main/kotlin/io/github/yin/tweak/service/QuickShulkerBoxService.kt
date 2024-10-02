@@ -1,17 +1,18 @@
 package io.github.yin.tweak.service
 
 import io.github.yin.tweak.Tweak
-import io.github.yin.tweak.cache.InventoryStateCache
+import io.github.yin.tweak.cache.PlayerInventorySlotLockCache
 import io.github.yin.tweak.inventory.holder.QuickShulkerBoxHolder
+import io.github.yin.tweak.support.MessageReplace
+import net.kyori.adventure.key.Key
+import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Bukkit
 import org.bukkit.Material
-import org.bukkit.Sound
 import org.bukkit.block.ShulkerBox
-import org.bukkit.entity.Player
+import org.bukkit.entity.HumanEntity
 import org.bukkit.event.inventory.InventoryType
-import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryView
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.BlockStateMeta
@@ -96,13 +97,13 @@ object QuickShulkerBoxService {
 
     private val inventoryType = InventoryType.SHULKER_BOX
 
-    private fun load(itemStack: ItemStack, title: Component, index: Int): QuickShulkerBoxHolder {
+    private fun load(itemStack: ItemStack, title: Component): QuickShulkerBoxHolder {
         val itemMeta = itemStack.itemMeta
 
         val shulkerBox = ((itemMeta as BlockStateMeta).blockState) as ShulkerBox
         val inventory = shulkerBox.inventory
 
-        val holder = QuickShulkerBoxHolder(index)
+        val holder = QuickShulkerBoxHolder()
         holder.top = Bukkit.createInventory(holder, inventoryType, title).apply { contents = inventory.contents }
 
         return holder
@@ -123,69 +124,139 @@ object QuickShulkerBoxService {
 
     private const val cooldown = 5
 
-    private val openSound = Sound.BLOCK_SHULKER_BOX_OPEN
-    private val closeSound = Sound.BLOCK_SHULKER_BOX_CLOSE
+    private val openSound = Sound.sound(Key.key("minecraft:block.shulker_box.open"), Sound.Source.BLOCK, 1.0f, 1.0f)
 
-    fun open(inventoryView: InventoryView, topInventory: Inventory, current: ItemStack, title: Component, slot: Int) {
-        val player = inventoryView.player as Player
-        val playerName = player.name
+    fun inventoryOpen(current: ItemStack, title: Component, slot: Int, player: HumanEntity) {
         val currentCooldown = player.getCooldown(current.type)
-
         if (currentCooldown > 0) {
             return
         }
 
-        val holder = topInventory.holder
-        if (holder is QuickShulkerBoxHolder) {
-            if (slot == holder.index) {
-                return
-            } else {
-                val itemStack = inventoryView.bottomInventory.getItem(holder.index)
-                if (itemStack == null) {
-                    Bukkit.broadcast(Component.text("${Tweak.pluginPrefix} 保存时 bottomInventory 找不到索引所指物品，保存失败。造成物品欺诈漏洞"))
-                    return
-                }
-                save(holder, itemStack)
-            }
-        }
+        val playerName = player.name
+        PlayerInventorySlotLockCache.map[playerName] = slot
 
-        if (topInventory.type != InventoryType.CRAFTING) {
-            InventoryStateCache.silence[playerName] = true
-        }
+        player.setCooldown(current.type, cooldown)
+        player.playSound(openSound)
 
-        val itemMeta = current.itemMeta
-        val quickShulkerBoxHolder = if (itemMeta.hasDisplayName()) {
-            load(current, itemMeta.displayName()!!, slot)
+        val displayName = current.itemMeta.displayName()
+        val quickShulkerBoxHolder = if (displayName == null) {
+            load(current, title)
         } else {
-            load(current, title, slot)
+            load(current, displayName)
         }
-
         Bukkit.getScheduler().runTask(Tweak.instance, Runnable {
             player.openInventory(quickShulkerBoxHolder.inventory)
-            player.playSound(player.location, openSound, 1F, 1F)
-            player.setCooldown(current.type, cooldown)
+        })
+    }
+
+    fun holderOpen(
+        inventoryView: InventoryView,
+        holder: QuickShulkerBoxHolder,
+        current: ItemStack,
+        title: Component,
+        slot: Int,
+        player: HumanEntity,
+    ) {
+        val currentCooldown = player.getCooldown(current.type)
+        if (currentCooldown > 0) {
+            return
+        }
+
+        val playerName = player.name
+        val index = PlayerInventorySlotLockCache.map.put(playerName, slot) ?: run { Bukkit.broadcast(MessageReplace.deserialize("${Tweak.instance} 发生错误")); return }
+        if (slot == index) {
+            return
+        } else {
+            val itemStack = inventoryView.bottomInventory.getItem(index) ?: run { Bukkit.broadcast(MessageReplace.deserialize("${Tweak.instance} 发生错误")); return }
+            save(holder, itemStack)
+        }
+
+        player.setCooldown(current.type, cooldown)
+        player.playSound(openSound)
+
+        val displayName = current.itemMeta.displayName()
+        val quickShulkerBoxHolder = if (displayName == null) {
+            load(current, title)
+        } else {
+            load(current, displayName)
+        }
+        Bukkit.getScheduler().runTask(Tweak.instance, Runnable {
+            player.openInventory(quickShulkerBoxHolder.inventory)
         })
     }
 
     fun close(inventoryView: InventoryView, holder: QuickShulkerBoxHolder) {
-        val player = inventoryView.player as Player
-        val playerName = player.name
-        if (InventoryStateCache.silence[playerName] != true) {
-            player.playSound(player.location, closeSound, 1F, 1F)
-        }
-        InventoryStateCache.silence[playerName] = false
-
         if (holder.save) {
             return
         } else {
-            val itemStack = inventoryView.bottomInventory.getItem(holder.index)
-            if (itemStack == null) {
-                Bukkit.broadcast(Component.text("${Tweak.pluginPrefix} 保存时 bottomInventory 找不到索引所指物品，保存失败。造成物品欺诈漏洞"))
-                return
-            }
+            val player = inventoryView.player
+            val playerName = player.name
+            val index = PlayerInventorySlotLockCache.map.remove(playerName) ?: run { Bukkit.broadcast(MessageReplace.deserialize("${Tweak.instance} 发生错误")); return }
+            val itemStack = inventoryView.bottomInventory.getItem(index) ?: run { Bukkit.broadcast(MessageReplace.deserialize("${Tweak.instance} 发生错误")); return }
             save(holder, itemStack)
         }
+
+
+//        val player = inventoryView.player as Player
+//        val playerName = player.name
+//        if (InventoryStateCache.silence[playerName] != true) {
+//            player.playSound(player.location, closeSound, 1F, 1F)
+//        }
+//        InventoryStateCache.silence[playerName] = false
+//
+//        if (holder.save) {
+//            return
+//        } else {
+//            val itemStack = inventoryView.bottomInventory.getItem(holder.index)
+//            if (itemStack == null) {
+//                Bukkit.broadcast(Component.text("${Tweak.pluginPrefix} 保存时 bottomInventory 找不到索引所指物品，保存失败。造成物品欺诈漏洞"))
+//                return
+//            }
+//            save(holder, itemStack)
+//        }
     }
 
 
 }
+
+
+//fun open(inventoryView: InventoryView, topInventory: Inventory, current: ItemStack, title: Component, slot: Int) {
+//    val player = inventoryView.player
+//    val playerName = player.name
+//    val currentCooldown = player.getCooldown(current.type)
+//
+//    if (currentCooldown > 0) {
+//        return
+//    }
+//
+//    val holder = topInventory.holder
+//    if (holder is QuickShulkerBoxHolder) {
+//        if (slot == holder.index) {
+//            return
+//        } else {
+//            val itemStack = inventoryView.bottomInventory.getItem(holder.index)
+//            if (itemStack == null) {
+//                Bukkit.broadcast(Component.text("${Tweak.pluginPrefix} 保存时 bottomInventory 找不到索引所指物品，保存失败。造成物品欺诈漏洞"))
+//                return
+//            }
+//            save(holder, itemStack)
+//        }
+//    }
+//
+//    if (topInventory.type != InventoryType.CRAFTING) {
+//        InventoryStateCache.silence[playerName] = true
+//    }
+//
+//    val itemMeta = current.itemMeta
+//    val quickShulkerBoxHolder = if (itemMeta.hasDisplayName()) {
+//        load(current, itemMeta.displayName()!!, slot)
+//    } else {
+//        load(current, title, slot)
+//    }
+//
+//    Bukkit.getScheduler().runTask(Tweak.instance, Runnable {
+//        player.openInventory(quickShulkerBoxHolder.inventory)
+//        player.playSound(player.location, openSound, 1F, 1F)
+//        player.setCooldown(current.type, cooldown)
+//    })
+//}
