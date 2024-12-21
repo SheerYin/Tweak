@@ -2,8 +2,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 plugins {
-    kotlin("jvm") version "2.0.0"
-    id("xyz.jpenilla.resource-factory-bukkit-convention") version "1.1.1"
+    kotlin("jvm")
+    id("xyz.jpenilla.resource-factory-bukkit-convention") version "1.2.0"
 }
 
 val rootName = rootProject.name
@@ -19,7 +19,7 @@ repositories {
 //    maven("https://repo.codemc.io/repository/nms/")
 }
 
-val minecraftVersion = "1.20.1"
+val minecraftVersion = "1.21.1"
 dependencies {
     compileOnly("org.spigotmc:spigot-api:${minecraftVersion}-R0.1-SNAPSHOT")
 //    compileOnly("org.spigotmc:spigot:${minecraftVersion}-R0.1-SNAPSHOT")
@@ -34,7 +34,7 @@ bukkitPluginYaml {
     main = "${project.group}.${rootName}"
     authors.add("尹")
     prefix = "微调"
-    libraries = listOf("org.jetbrains.kotlin:kotlin-stdlib:2.0.0")
+    libraries = listOf("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
 }
 
 tasks.jar {
@@ -42,5 +42,5 @@ tasks.jar {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }

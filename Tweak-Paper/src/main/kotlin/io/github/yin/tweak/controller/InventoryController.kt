@@ -1,8 +1,9 @@
 package io.github.yin.tweak.controller
 
-import io.github.yin.tweak.cache.PlayerInventorySlotLockCache
+import io.github.yin.tweak.cache.InventorySlotLockCache
 import io.github.yin.tweak.service.QuickEnderChestService
 import io.github.yin.tweak.service.QuickShulkerBoxService
+import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
@@ -65,7 +66,7 @@ object InventoryController {
 
         val player = inventoryView.player
         val slot = event.slot
-        if (PlayerInventorySlotLockCache.map[player.name] == slot) {
+        if (InventorySlotLockCache.map[player.name] == slot) {
             event.isCancelled = true
         }
     }
@@ -80,7 +81,7 @@ object InventoryController {
         val slot = event.slot
 
         val player = inventoryView.player
-        val index = PlayerInventorySlotLockCache.map[player.name]
+        val index = InventorySlotLockCache.map[player.name]
 
         if (hot == index || slot == index) {
             event.isCancelled = true
@@ -100,13 +101,13 @@ object InventoryController {
             if (title == null) {
                 if (material == QuickEnderChestService.enderChest) {
                     event.isCancelled = true
-                    val player = inventoryView.player
+                    val player = inventoryView.player as Player
                     QuickEnderChestService.inventoryOpen(topInventory, player)
                 }
             } else {
                 event.isCancelled = true
                 val slot = event.slot
-                val player = inventoryView.player
+                val player = inventoryView.player as Player
                 QuickShulkerBoxService.inventoryOpen(current, title, slot, player)
             }
         }

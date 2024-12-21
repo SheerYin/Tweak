@@ -1,6 +1,6 @@
 package io.github.yin.tweak.cache
 
-object PlayerInventorySlotLockCache {
+object InventorySlotLockCache {
 
     val map: MutableMap<String, Int> = hashMapOf()
 

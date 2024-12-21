@@ -14,9 +14,8 @@ object InventoryClick : Listener {
     fun onInventoryClick(event: InventoryClickEvent) {
 
         val inventoryView = event.view
+
         val topInventory = inventoryView.topInventory
-
-
 
         val holder = topInventory.holder
 

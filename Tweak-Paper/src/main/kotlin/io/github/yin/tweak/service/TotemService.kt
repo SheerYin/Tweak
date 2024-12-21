@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack
 object TotemService {
 
     private val totem = Material.TOTEM_OF_UNDYING
-    val cooldown = 100
+    private const val cooldown = 100
 
     fun handleTotem(event: EntityResurrectEvent, entity: Player, hand: ItemStack, offHand: ItemStack) {
         if (hand.type == totem || offHand.type == totem) {

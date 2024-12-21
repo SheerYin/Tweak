@@ -1,9 +1,10 @@
 package io.github.yin.tweak.controller
 
-import io.github.yin.tweak.cache.PlayerInventorySlotLockCache
+import io.github.yin.tweak.cache.InventorySlotLockCache
 import io.github.yin.tweak.inventory.holder.QuickShulkerBoxHolder
 import io.github.yin.tweak.service.QuickEnderChestService
 import io.github.yin.tweak.service.QuickShulkerBoxService
+import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
@@ -11,12 +12,7 @@ import org.bukkit.inventory.InventoryView
 
 object QuickShulkerBoxController {
 
-    fun handleClick(
-        event: InventoryClickEvent,
-        inventoryView: InventoryView,
-        topInventory: Inventory,
-        holder: QuickShulkerBoxHolder,
-    ) {
+    fun handleClick(event: InventoryClickEvent, inventoryView: InventoryView, topInventory: Inventory, holder: QuickShulkerBoxHolder) {
         val clickType = event.click
         when (clickType) {
             ClickType.LEFT -> {
@@ -71,7 +67,7 @@ object QuickShulkerBoxController {
 
         val player = inventoryView.player
         val slot = event.slot
-        if (PlayerInventorySlotLockCache.map[player.name] == slot) {
+        if (InventorySlotLockCache.map[player.name] == slot) {
             event.isCancelled = true
         }
     }
@@ -86,19 +82,14 @@ object QuickShulkerBoxController {
         val slot = event.slot
 
         val player = inventoryView.player
-        val index = PlayerInventorySlotLockCache.map[player.name]
+        val index = InventorySlotLockCache.map[player.name]
 
         if (hot == index || slot == index) {
             event.isCancelled = true
         }
     }
 
-    private fun f3(
-        event: InventoryClickEvent,
-        inventoryView: InventoryView,
-        topInventory: Inventory,
-        holder: QuickShulkerBoxHolder,
-    ) {
+    private fun f3(event: InventoryClickEvent, inventoryView: InventoryView, topInventory: Inventory, holder: QuickShulkerBoxHolder) {
         val rawSlot = event.rawSlot
         if (rawSlot < topInventory.size) {
             return
@@ -111,13 +102,13 @@ object QuickShulkerBoxController {
             if (title == null) {
                 if (material == QuickEnderChestService.enderChest) {
                     event.isCancelled = true
-                    val player = inventoryView.player
+                    val player = inventoryView.player as Player
                     QuickEnderChestService.inventoryOpen(topInventory, player)
                 }
             } else {
                 event.isCancelled = true
                 val slot = event.slot
-                val player = inventoryView.player
+                val player = inventoryView.player as Player
                 QuickShulkerBoxService.holderOpen(inventoryView, holder, current, title, slot, player)
             }
         }
