@@ -11,7 +11,7 @@ import org.bukkit.event.player.PlayerDropItemEvent
 
 object PlayerDropItem : Listener {
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
+    @EventHandler
     fun onPlayerDropItem(event: PlayerDropItemEvent) {
         val player = event.player
         shulkerCancel(event, player)

@@ -12,15 +12,15 @@ object TotemService {
     private val totem = Material.TOTEM_OF_UNDYING
     private const val cooldown = 100
 
-    fun handleTotem(event: EntityResurrectEvent, entity: Player, hand: ItemStack, offHand: ItemStack) {
+    fun handleTotem(event: EntityResurrectEvent, player: Player, hand: ItemStack, offHand: ItemStack) {
         if (hand.type == totem || offHand.type == totem) {
-            val currentCooldown = entity.getCooldown(totem)
+            val currentCooldown = player.getCooldown(totem)
             if (currentCooldown > 0) {
                 event.isCancelled = true
                 return
             } else {
                 Bukkit.getScheduler().runTask(Tweak.instance, Runnable {
-                    entity.setCooldown(totem, cooldown)
+                    player.setCooldown(totem, cooldown)
                 })
             }
         }

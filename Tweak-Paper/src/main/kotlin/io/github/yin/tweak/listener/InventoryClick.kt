@@ -10,7 +10,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 
 object InventoryClick : Listener {
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
+    @EventHandler
     fun onInventoryClick(event: InventoryClickEvent) {
 
         val inventoryView = event.view

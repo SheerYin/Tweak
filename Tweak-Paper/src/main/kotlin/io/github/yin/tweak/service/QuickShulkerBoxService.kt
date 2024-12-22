@@ -6,7 +6,6 @@ import io.github.yin.tweak.inventory.holder.QuickShulkerBoxHolder
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -61,38 +60,22 @@ object QuickShulkerBoxService {
 
     val shulkerBoxColors = hashMapOf(
         Material.SHULKER_BOX to Component.translatable("container.shulkerBox"), // 默认潜影盒
-        Material.WHITE_SHULKER_BOX to Component.translatable("container.shulkerBox")
-            .color(TextColor.fromHexString("#FFFFFF")),
-        Material.ORANGE_SHULKER_BOX to Component.translatable("container.shulkerBox")
-            .color(TextColor.fromHexString("#FF7F00")),
-        Material.MAGENTA_SHULKER_BOX to Component.translatable("container.shulkerBox")
-            .color(TextColor.fromHexString("#FF00B7")),
-        Material.LIGHT_BLUE_SHULKER_BOX to Component.translatable("container.shulkerBox")
-            .color(TextColor.fromHexString("#A0D3E8")),
-        Material.YELLOW_SHULKER_BOX to Component.translatable("container.shulkerBox")
-            .color(TextColor.fromHexString("#FFFF00")),
-        Material.LIME_SHULKER_BOX to Component.translatable("container.shulkerBox")
-            .color(TextColor.fromHexString("#00FF00")),
-        Material.PINK_SHULKER_BOX to Component.translatable("container.shulkerBox")
-            .color(TextColor.fromHexString("#FFB6C1")),
-        Material.GRAY_SHULKER_BOX to Component.translatable("container.shulkerBox")
-            .color(TextColor.fromHexString("#808080")),
-        Material.LIGHT_GRAY_SHULKER_BOX to Component.translatable("container.shulkerBox")
-            .color(TextColor.fromHexString("#D3D3D3")),
-        Material.CYAN_SHULKER_BOX to Component.translatable("container.shulkerBox")
-            .color(TextColor.fromHexString("#00FFFF")),
-        Material.PURPLE_SHULKER_BOX to Component.translatable("container.shulkerBox")
-            .color(TextColor.fromHexString("#800080")),
-        Material.BLUE_SHULKER_BOX to Component.translatable("container.shulkerBox")
-            .color(TextColor.fromHexString("#0000FF")),
-        Material.BROWN_SHULKER_BOX to Component.translatable("container.shulkerBox")
-            .color(TextColor.fromHexString("#8B4513")),
-        Material.GREEN_SHULKER_BOX to Component.translatable("container.shulkerBox")
-            .color(TextColor.fromHexString("#008000")),
-        Material.RED_SHULKER_BOX to Component.translatable("container.shulkerBox")
-            .color(TextColor.fromHexString("#FF0000")),
-        Material.BLACK_SHULKER_BOX to Component.translatable("container.shulkerBox")
-            .color(TextColor.fromHexString("#000000"))
+        Material.WHITE_SHULKER_BOX to Component.translatable("container.shulkerBox", TextColor.fromHexString("#FFFFFF")),
+        Material.ORANGE_SHULKER_BOX to Component.translatable("container.shulkerBox", TextColor.fromHexString("#FF7F00")),
+        Material.MAGENTA_SHULKER_BOX to Component.translatable("container.shulkerBox", TextColor.fromHexString("#FF00B7")),
+        Material.LIGHT_BLUE_SHULKER_BOX to Component.translatable("container.shulkerBox", TextColor.fromHexString("#A0D3E8")),
+        Material.YELLOW_SHULKER_BOX to Component.translatable("container.shulkerBox", TextColor.fromHexString("#FFFF00")),
+        Material.LIME_SHULKER_BOX to Component.translatable("container.shulkerBox", TextColor.fromHexString("#00FF00")),
+        Material.PINK_SHULKER_BOX to Component.translatable("container.shulkerBox", TextColor.fromHexString("#FFB6C1")),
+        Material.GRAY_SHULKER_BOX to Component.translatable("container.shulkerBox", TextColor.fromHexString("#808080")),
+        Material.LIGHT_GRAY_SHULKER_BOX to Component.translatable("container.shulkerBox", TextColor.fromHexString("#D3D3D3")),
+        Material.CYAN_SHULKER_BOX to Component.translatable("container.shulkerBox", TextColor.fromHexString("#00FFFF")),
+        Material.PURPLE_SHULKER_BOX to Component.translatable("container.shulkerBox", TextColor.fromHexString("#800080")),
+        Material.BLUE_SHULKER_BOX to Component.translatable("container.shulkerBox", TextColor.fromHexString("#0000FF")),
+        Material.BROWN_SHULKER_BOX to Component.translatable("container.shulkerBox", TextColor.fromHexString("#8B4513")),
+        Material.GREEN_SHULKER_BOX to Component.translatable("container.shulkerBox", TextColor.fromHexString("#008000")),
+        Material.RED_SHULKER_BOX to Component.translatable("container.shulkerBox", TextColor.fromHexString("#FF0000")),
+        Material.BLACK_SHULKER_BOX to Component.translatable("container.shulkerBox", TextColor.fromHexString("#000000"))
     )
 
     private val inventoryType = InventoryType.SHULKER_BOX
@@ -127,9 +110,12 @@ object QuickShulkerBoxService {
     private val openSound = Sound.sound(Key.key("minecraft:block.shulker_box.open"), Sound.Source.BLOCK, 1.0f, 1.0f)
 
     fun inventoryOpen(current: ItemStack, title: Component, slot: Int, player: Player) {
-        val currentCooldown = player.getCooldown(current.type)
-        if (currentCooldown > 0) {
-            return
+        if (!player.hasPermission("tweak.quick.shulkerbox.cooldown.bypass")) {
+            val currentCooldown = player.getCooldown(current.type)
+            if (currentCooldown > 0) {
+                return
+            }
+            player.setCooldown(current.type, cooldown)
         }
 
         val playerName = player.name
@@ -143,15 +129,17 @@ object QuickShulkerBoxService {
         }
         Bukkit.getScheduler().runTask(Tweak.instance, Runnable {
             player.openInventory(quickShulkerBoxHolder.inventory)
-            player.setCooldown(current.type, cooldown)
             player.playSound(openSound)
         })
     }
 
     fun holderOpen(inventoryView: InventoryView, holder: QuickShulkerBoxHolder, current: ItemStack, title: Component, slot: Int, player: Player) {
-        val currentCooldown = player.getCooldown(current.type)
-        if (currentCooldown > 0) {
-            return
+        if (!player.hasPermission("tweak.quick.shulkerbox.cooldown.bypass")) {
+            val currentCooldown = player.getCooldown(current.type)
+            if (currentCooldown > 0) {
+                return
+            }
+            player.setCooldown(current.type, cooldown)
         }
 
         val playerName = player.name
@@ -171,7 +159,6 @@ object QuickShulkerBoxService {
         }
         Bukkit.getScheduler().runTask(Tweak.instance, Runnable {
             player.openInventory(quickShulkerBoxHolder.inventory)
-            player.setCooldown(current.type, cooldown)
             player.playSound(openSound)
         })
     }
@@ -191,7 +178,7 @@ object QuickShulkerBoxService {
 //        val player = inventoryView.player as Player
 //        val playerName = player.name
 //        if (InventoryStateCache.silence[playerName] != true) {
-//            player.playSound(player.location, closeSound, 1F, 1F)
+//            player.playSound(player.location, closeSound, 1.0f, 1.0f)
 //        }
 //        InventoryStateCache.silence[playerName] = false
 //
@@ -247,7 +234,7 @@ object QuickShulkerBoxService {
 //
 //    Bukkit.getScheduler().runTask(Tweak.instance, Runnable {
 //        player.openInventory(quickShulkerBoxHolder.inventory)
-//        player.playSound(player.location, openSound, 1F, 1F)
+//        player.playSound(player.location, openSound, 1.0f, 1.0f)
 //        player.setCooldown(current.type, cooldown)
 //    })
 //}

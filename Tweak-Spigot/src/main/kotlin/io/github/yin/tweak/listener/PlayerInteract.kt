@@ -16,7 +16,7 @@ import org.bukkit.inventory.ItemStack
 
 object PlayerInteract : Listener {
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
+    @EventHandler
     fun onPlayerInteract(event: PlayerInteractEvent) {
         if (event.action == Action.RIGHT_CLICK_AIR) {
             val equipmentSlot = event.hand

@@ -4,6 +4,7 @@ import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
+import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import kotlin.random.Random
 
@@ -177,13 +178,18 @@ object CaptureService {
 
     private val sound = Sound.ENTITY_ITEM_PICKUP
 
-    fun capture(livingEntity: LivingEntity) {
+    fun capture(player: Player, livingEntity: LivingEntity) {
+        val entityType = livingEntity.type
+        if (!player.hasPermission("tweak.capture." + entityType.name.lowercase())) {
+            return
+        }
+
         if (Random.nextDouble() < 0.1) {
-            entityEggs[livingEntity.type]?.let { itemStack ->
+            entityEggs[entityType]?.let { itemStack ->
                 val location = livingEntity.location
                 val world = location.world!!
                 world.dropItemNaturally(location, itemStack)
-                world.playSound(location, sound, 1F, 1F)
+                world.playSound(location, sound, 1.0f, 1.0f)
                 livingEntity.remove()
             }
         }

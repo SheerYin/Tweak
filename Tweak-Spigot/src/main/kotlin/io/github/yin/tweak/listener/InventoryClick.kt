@@ -18,7 +18,7 @@ import org.bukkit.inventory.ItemStack
 
 object InventoryClick : Listener {
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
+    @EventHandler
     fun onInventoryClick(event: InventoryClickEvent) {
         handleClick(event)
     }

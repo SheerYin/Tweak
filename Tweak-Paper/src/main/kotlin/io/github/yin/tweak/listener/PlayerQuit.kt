@@ -10,15 +10,15 @@ import org.bukkit.event.player.PlayerQuitEvent
 
 object PlayerQuit : Listener {
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
+    @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent) {
         val player = event.player
 
-        PlayerCooldownCache.inventory.remove(player.name)
-        PlayerCooldownCache.interact.remove(player.name)
-
-        Bukkit.broadcast(Component.text("inventory: " + PlayerCooldownCache.inventory))
-        Bukkit.broadcast(Component.text("interact: " + PlayerCooldownCache.interact))
+//        PlayerCooldownCache.inventory.remove(player.name)
+//        PlayerCooldownCache.interact.remove(player.name)
+//
+//        Bukkit.broadcast(Component.text("inventory: " + PlayerCooldownCache.inventory))
+//        Bukkit.broadcast(Component.text("interact: " + PlayerCooldownCache.interact))
     }
 
 }

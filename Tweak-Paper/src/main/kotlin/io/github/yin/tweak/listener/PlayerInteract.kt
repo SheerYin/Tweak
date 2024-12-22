@@ -1,10 +1,10 @@
 package io.github.yin.tweak.listener
 
-import io.github.yin.tweak.cache.PlayerCooldownCache
 import io.github.yin.tweak.service.QuickEnderChestService
 import io.github.yin.tweak.service.QuickShulkerBoxService
 import net.kyori.adventure.text.Component
-import org.bukkit.Bukkit
+import net.kyori.adventure.text.TranslatableComponent
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -16,7 +16,7 @@ import org.bukkit.inventory.ItemStack
 
 object PlayerInteract : Listener {
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
+    @EventHandler
     fun onPlayerInteract(event: PlayerInteractEvent) {
         val action = event.action
         if (action == Action.RIGHT_CLICK_AIR) {
@@ -38,16 +38,31 @@ object PlayerInteract : Listener {
         }
         val title = QuickShulkerBoxService.shulkerBoxColors[material]
         if (title == null) {
-            if (material == QuickEnderChestService.enderChest) {
-                val inventoryView = player.openInventory
-                val topInventory = inventoryView.topInventory
-                QuickEnderChestService.inventoryOpen(topInventory, player)
-            }
+            workItemStack(material, player)
         } else {
-            if (itemStack.amount == 1) {
-                val slot = player.inventory.heldItemSlot
-                QuickShulkerBoxService.inventoryOpen(itemStack, title, slot, player)
+            containerItemStack(itemStack, player, title)
+        }
+    }
+
+
+    fun workItemStack(material: Material, player: Player) {
+        if (material == QuickEnderChestService.enderChest) {
+            if (!player.hasPermission("tweak.quick.enderchest")) {
+                return
             }
+            val inventoryView = player.openInventory
+            val topInventory = inventoryView.topInventory
+            QuickEnderChestService.inventoryOpen(topInventory, player)
+        }
+    }
+
+    fun containerItemStack(itemStack: ItemStack, player: Player, title: Component) {
+        if (!player.hasPermission("tweak.quick.shulkerbox")) {
+            return
+        }
+        if (itemStack.amount == 1) {
+            val slot = player.inventory.heldItemSlot
+            QuickShulkerBoxService.inventoryOpen(itemStack, title, slot, player)
         }
     }
 

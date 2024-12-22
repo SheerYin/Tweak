@@ -18,9 +18,13 @@ object QuickEnderChestService {
     private val openSound = Sound.sound(Key.key("minecraft:block.ender_chest.open"), Sound.Source.BLOCK, 1.0f, 1.0f)
 
     fun inventoryOpen(topInventory: Inventory, player: Player) {
-        val currentCooldown = player.getCooldown(enderChest)
-        if (currentCooldown > 0) {
-            return
+
+        if (!player.hasPermission("tweak.quick.enderchest.cooldown.bypass")) {
+            val currentCooldown = player.getCooldown(enderChest)
+            if (currentCooldown > 0) {
+                return
+            }
+            player.setCooldown(enderChest, cooldown)
         }
 
         val inventoryType = topInventory.type
@@ -28,7 +32,6 @@ object QuickEnderChestService {
             return
         }
 
-        player.setCooldown(enderChest, cooldown)
         player.playSound(openSound)
 
         Bukkit.getScheduler().runTask(Tweak.instance, Runnable {

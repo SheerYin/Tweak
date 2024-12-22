@@ -8,7 +8,7 @@ plugins {
 }
 
 val rootName = rootProject.name
-val lowercaseName = rootName.lowercase(Locale.getDefault())
+val lowercaseName = rootName.lowercase()
 group = "${rootProject.group}.${lowercaseName}"
 version = SimpleDateFormat("yyyy.MM.dd").format(Date()) + "-SNAPSHOT";
 
@@ -16,7 +16,9 @@ val minecraftVersion = "1.21.1"
 dependencies {
     paperweight.paperDevBundle("$minecraftVersion-R0.1-SNAPSHOT")
 
-//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+    // 如果要修改需要同步 Loader 的 maven
+
+    // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 }
 
 paperPluginYaml {

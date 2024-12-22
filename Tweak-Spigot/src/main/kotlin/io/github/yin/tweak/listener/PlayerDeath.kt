@@ -7,7 +7,7 @@ import org.bukkit.event.entity.PlayerDeathEvent
 
 object PlayerDeath : Listener {
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
+    @EventHandler
     fun onPlayerDeath(event: PlayerDeathEvent) {
         event.entity.closeInventory()
     }

@@ -25,7 +25,8 @@ object LiteCommand {
                 mainPermission
             )
             }
-            .then(Commands.argument("parameter", StringArgumentType.greedyString())
+            .then(
+                Commands.argument("parameter", StringArgumentType.greedyString())
                 .suggests { context, builder ->
                     val sender = context.source.sender
                     val remaining = builder.remaining
@@ -108,7 +109,7 @@ object LiteCommand {
 //    }
 
     private fun suggestion(sender: CommandSender, argument: String, vararg suggest: String): Boolean {
-        val lowerCaseArgument = argument.lowercase(Locale.getDefault())
+        val lowerCaseArgument = argument.lowercase()
         if (lowerCaseArgument in suggest) {
             return permissionMessage(sender, "$mainPermission.$lowerCaseArgument")
         }

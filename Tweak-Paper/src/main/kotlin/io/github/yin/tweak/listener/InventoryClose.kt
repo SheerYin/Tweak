@@ -9,7 +9,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 
 object InventoryClose : Listener {
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
+    @EventHandler
     fun onInventoryClose(event: InventoryCloseEvent) {
         val inventoryView = event.view
         val topInventory = inventoryView.topInventory

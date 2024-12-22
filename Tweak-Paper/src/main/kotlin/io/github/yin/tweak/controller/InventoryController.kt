@@ -3,11 +3,14 @@ package io.github.yin.tweak.controller
 import io.github.yin.tweak.cache.InventorySlotLockCache
 import io.github.yin.tweak.service.QuickEnderChestService
 import io.github.yin.tweak.service.QuickShulkerBoxService
+import net.kyori.adventure.text.Component
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryView
+import org.bukkit.inventory.ItemStack
 
 object InventoryController {
 
@@ -15,50 +18,52 @@ object InventoryController {
         val clickType = event.click
         when (clickType) {
             ClickType.LEFT -> {
-                f1(event, inventoryView, topInventory)
+                move(event, inventoryView, topInventory)
             }
 
             ClickType.SHIFT_LEFT -> {
-                f1(event, inventoryView, topInventory)
+                move(event, inventoryView, topInventory)
             }
 
             ClickType.RIGHT -> {
-                f3(event, inventoryView, topInventory)
+                right(event, inventoryView, topInventory)
             }
 
             ClickType.SHIFT_RIGHT -> {
-                f1(event, inventoryView, topInventory)
+                move(event, inventoryView, topInventory)
             }
 
             ClickType.WINDOW_BORDER_LEFT -> {}
             ClickType.WINDOW_BORDER_RIGHT -> {}
             ClickType.MIDDLE -> {}
             ClickType.NUMBER_KEY -> {
-                f2(event, inventoryView, topInventory)
+                number(event, inventoryView, topInventory)
             }
 
             ClickType.DOUBLE_CLICK -> {
-                f1(event, inventoryView, topInventory)
+                move(event, inventoryView, topInventory)
             }
 
             ClickType.DROP -> {
-                f1(event, inventoryView, topInventory)
+                move(event, inventoryView, topInventory)
             }
 
             ClickType.CONTROL_DROP -> {
-                f1(event, inventoryView, topInventory)
+                move(event, inventoryView, topInventory)
             }
 
             ClickType.CREATIVE -> {}
             ClickType.SWAP_OFFHAND -> {
-                f1(event, inventoryView, topInventory)
+                move(event, inventoryView, topInventory)
             }
 
             ClickType.UNKNOWN -> {}
         }
     }
 
-    private fun f1(event: InventoryClickEvent, inventoryView: InventoryView, topInventory: Inventory) {
+    // 当格位被锁定时，不应该被移动或变化。否则欺诈
+    // 常规手段尝试移动被锁定物品
+    private fun move(event: InventoryClickEvent, inventoryView: InventoryView, topInventory: Inventory) {
         val rawSlot = event.rawSlot
         if (rawSlot < topInventory.size) {
             return
@@ -71,7 +76,9 @@ object InventoryController {
         }
     }
 
-    private fun f2(event: InventoryClickEvent, inventoryView: InventoryView, topInventory: Inventory) {
+    // 当格位被锁定时，不应该被移动或变化。否则欺诈
+    // 数字键尝试移动被锁定物品
+    private fun number(event: InventoryClickEvent, inventoryView: InventoryView, topInventory: Inventory) {
         val rawSlot = event.rawSlot
         if (rawSlot < topInventory.size) {
             return
@@ -88,7 +95,8 @@ object InventoryController {
         }
     }
 
-    private fun f3(event: InventoryClickEvent, inventoryView: InventoryView, topInventory: Inventory) {
+    // 在库存右键
+    private fun right(event: InventoryClickEvent, inventoryView: InventoryView, topInventory: Inventory) {
         val rawSlot = event.rawSlot
         if (rawSlot < topInventory.size) {
             return
@@ -99,18 +107,35 @@ object InventoryController {
             val material = current.type
             val title = QuickShulkerBoxService.shulkerBoxColors[material]
             if (title == null) {
-                if (material == QuickEnderChestService.enderChest) {
-                    event.isCancelled = true
-                    val player = inventoryView.player as Player
-                    QuickEnderChestService.inventoryOpen(topInventory, player)
-                }
+                workItemStack(event, inventoryView, topInventory, material)
             } else {
-                event.isCancelled = true
-                val slot = event.slot
-                val player = inventoryView.player as Player
-                QuickShulkerBoxService.inventoryOpen(current, title, slot, player)
+                containerItemStack(event, inventoryView, current, title)
             }
         }
+    }
+
+    fun workItemStack(event: InventoryClickEvent, inventoryView: InventoryView, topInventory: Inventory, material: Material) {
+        val player = inventoryView.player as Player
+
+        if (material == QuickEnderChestService.enderChest) {
+            if (!player.hasPermission("tweak.quick.enderchest")) {
+                return
+            }
+            event.isCancelled = true
+            QuickEnderChestService.inventoryOpen(topInventory, player)
+        }
+    }
+
+    fun containerItemStack(event: InventoryClickEvent, inventoryView: InventoryView, current: ItemStack, title: Component) {
+        val player = inventoryView.player as Player
+
+        if (!player.hasPermission("tweak.quick.shulkerbox")) {
+            return
+        }
+
+        event.isCancelled = true
+        val slot = event.slot
+        QuickShulkerBoxService.inventoryOpen(current, title, slot, player)
     }
 
 

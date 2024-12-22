@@ -9,10 +9,15 @@ import org.bukkit.event.entity.EntityResurrectEvent
 
 object EntityResurrect : Listener {
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
+    @EventHandler
     fun onEntityResurrect(event: EntityResurrectEvent) {
         val entity = event.entity
         if (entity is Player) {
+
+            if (entity.hasPermission("tweak.totem.cooldown.bypass")) {
+                return
+            }
+
             val inventory = entity.inventory
             val hand = inventory.itemInMainHand
             val offHand = inventory.itemInOffHand
