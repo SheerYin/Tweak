@@ -4,7 +4,6 @@ import io.github.yin.tweak.controller.InventoryController
 import io.github.yin.tweak.controller.QuickShulkerBoxController
 import io.github.yin.tweak.inventory.holder.QuickShulkerBoxHolder
 import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 

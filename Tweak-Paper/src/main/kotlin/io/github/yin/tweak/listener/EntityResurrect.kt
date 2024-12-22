@@ -3,7 +3,6 @@ package io.github.yin.tweak.listener
 import io.github.yin.tweak.service.TotemService
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityResurrectEvent
 

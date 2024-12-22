@@ -5,7 +5,6 @@ import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.entity.Snowball
 import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.ProjectileHitEvent
 
@@ -15,7 +14,7 @@ object ProjectileHit : Listener {
     fun onProjectileHit(event: ProjectileHitEvent) {
         val projectile = event.entity
         val player = projectile.shooter as? Player ?: return
-        
+
         val hit = event.hitEntity ?: return
 
         val livingEntity = hit as? LivingEntity ?: return

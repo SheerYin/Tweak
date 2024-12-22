@@ -10,7 +10,6 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import java.util.*
 
 object LiteCommand {
 
@@ -27,19 +26,19 @@ object LiteCommand {
             }
             .then(
                 Commands.argument("parameter", StringArgumentType.greedyString())
-                .suggests { context, builder ->
-                    val sender = context.source.sender
-                    val remaining = builder.remaining
-                    val arguments = builder.remainingLowerCase.split(" ")
-                    val suggestionsBuilder = builder.createOffset(builder.start + remaining.lastIndexOf(" ") + 1)
+                    .suggests { context, builder ->
+                        val sender = context.source.sender
+                        val remaining = builder.remaining
+                        val arguments = builder.remainingLowerCase.split(" ")
+                        val suggestionsBuilder = builder.createOffset(builder.start + remaining.lastIndexOf(" ") + 1)
 
-                    return@suggests suggest(context, sender, remaining, arguments, suggestionsBuilder).buildFuture()
-                }
-                .executes { context ->
-                    val sender = context.source.sender
-                    execute(context, sender, context.getArgument("parameter", String::class.java))
-                    return@executes 1
-                }
+                        return@suggests suggest(context, sender, remaining, arguments, suggestionsBuilder).buildFuture()
+                    }
+                    .executes { context ->
+                        val sender = context.source.sender
+                        execute(context, sender, context.getArgument("parameter", String::class.java))
+                        return@executes 1
+                    }
             ).build()
     }
 

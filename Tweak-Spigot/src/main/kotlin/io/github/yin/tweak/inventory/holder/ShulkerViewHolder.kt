@@ -17,5 +17,4 @@ class ShulkerViewHolder(val uuid: UUID, shulker: Inventory, title: String, var s
     }
 
 
-
 }

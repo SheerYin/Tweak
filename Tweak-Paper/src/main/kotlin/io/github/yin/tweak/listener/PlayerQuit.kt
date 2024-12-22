@@ -1,10 +1,6 @@
 package io.github.yin.tweak.listener
 
-import io.github.yin.tweak.cache.PlayerCooldownCache
-import net.kyori.adventure.text.Component
-import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerQuitEvent
 

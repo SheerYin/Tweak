@@ -5,7 +5,6 @@ import io.github.yin.tweak.inventory.holder.ShulkerViewHolder
 import io.github.yin.tweak.service.SimpleShulkerBox
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryCloseEvent
 

@@ -8,7 +8,6 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.ClickType.*
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -29,6 +28,7 @@ object InventoryClick : Listener {
             LEFT -> {
                 shulkerCancel(event)
             }
+
             RIGHT -> {
                 val rawSlot = event.rawSlot
                 val inventoryView = event.view
@@ -62,12 +62,15 @@ object InventoryClick : Listener {
                     }
                 }
             }
+
             DROP -> {
                 shulkerCancel(event)
             }
+
             CONTROL_DROP -> {
                 shulkerCancel(event)
             }
+
             else -> return
         }
     }
